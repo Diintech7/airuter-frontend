@@ -1,0 +1,936 @@
+/* Base responsive container styles */
+:root {
+  --primary-color: #6B46C1;
+  --primary-dark: #553C9A;
+  --text-dark: #2D3748;
+  --text-medium: #4A5568;
+  --text-light: #ffffff;
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 1rem;
+  --spacing-md: 1.5rem;
+  --spacing-lg: 2rem; 
+  --spacing-xl: 3rem;
+  --border-radius-sm: 8px;
+  --border-radius-md: 16px;
+  --border-radius-lg: 20px;
+  --border-radius-xl: 30px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Modify the InterviewProcessContentBox to position headings over images */
+.InterviewProcessContentBox {
+  border-radius: var(--border-radius-md);
+  padding: 0; /* Remove padding */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  min-height: 280px;
+  width: 100%;
+  overflow: hidden;
+  position: relative; /* Add position relative */
+  background: white; /* Change background to white */
+}
+
+.InterviewProcessContentBox:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(107, 70, 193, 0.2);
+}
+
+/* Modify content image container to take full height */
+.content-image-container {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  aspect-ratio: 1/1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  border-radius: var(--border-radius-sm);
+  margin: 0; /* Remove margins */
+  border: none;
+}
+
+.content-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+/* Position h4 heading at the bottom of the image */
+.InterviewProcessContentBox h4 {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 15px 20px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.4), transparent);
+  margin: 0;
+  transition: padding 0.3s ease, background 0.3s ease;
+  z-index: 2;
+}
+
+/* Add hover effects */
+.InterviewProcessContentBox:hover .content-image {
+  transform: scale(1.08);
+}
+
+.InterviewProcessContentBox:hover h4 {
+  padding: 20px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.5), transparent);
+}
+
+/* Add a subtle overlay on hover for better text contrast */
+.InterviewProcessContentBox::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to bottom, transparent 60%, rgba(0, 0, 0, 0.3));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+}
+
+.InterviewProcessContentBox:hover::after {
+  opacity: 1;
+}
+
+.hero {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6rem 2rem;
+  margin: 0 auto;
+  max-width: 1200px;
+  gap: var(--spacing-lg);
+}
+
+.hero-image-container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 600px;
+}
+
+.hero-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 550px;
+}
+
+.hero h1 {
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  line-height: 1.2;
+  margin-bottom: var(--spacing-lg);
+  color: var(--text-dark);
+  font-weight: 700;
+}
+
+.metrics {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: var(--spacing-lg);
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.metric {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.metric-value {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.metric-label {
+  color: var(--text-medium);
+  font-size: clamp(0.875rem, 1.5vw, 1rem);
+}
+
+.separator {
+  width: 1px;
+  height: 40px;
+  background: var(--text-light);
+}
+/* Button container with improved alignment */
+.button-container {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin: 1.7rem 0;
+  width: 100%;
+  max-width: 450px;
+}
+
+.cta-button {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: var(--border-radius-sm);
+  font-size: 1.125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+  flex: 1;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.try-free-button {
+  background: transparent;
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--border-radius-sm);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex: 1;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.try-free-button:hover {
+  background: rgba(107, 70, 193, 0.1);
+  box-shadow: 0 2px 4px rgba(107, 70, 193, 0.1);
+  transform: translateY(-2px);
+}
+
+.cta-button:hover {
+  background: var(--primary-dark);
+  box-shadow: 0 4px 6px rgba(107, 70, 193, 0.2);
+  transform: translateY(-2px);
+}
+
+.subtitle {
+  color: var(--text-medium);
+  font-size: clamp(0.95rem, 2vw, 1.125rem);
+  line-height: 1.6;
+}
+
+/* Demo image with improved responsiveness */
+.demo-image {
+  width: 100%;
+  max-width: 600px;
+  height: auto;
+}
+
+.demo-image img {
+  width: 100%;
+  height: auto;
+  border-radius: var(--border-radius-md);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.demo-image img:hover {
+  transform: scale(1.02);
+}
+
+/* Interview process container section with improved layout */
+.InterviewProcessContainerSection {
+  position: relative;
+  top: auto;
+  height: auto;
+  padding: 0 var(--spacing-sm);
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+/* Updated InterviewProcessContainer structure */
+.InterviewProcessContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: clamp(2rem, 4vw, 4rem) clamp(1.5rem, 3vw, 3rem);
+  background-color: white;
+  border-radius: var(--border-radius-xl);
+  margin-bottom: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+  max-width: 1500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.InterviewProcessHeader {
+  width: 100%;
+  text-align: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.InterviewProcessHeader h3 {
+  text-align: center;
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  line-height: 1.2;
+  margin-bottom: var(--spacing-lg);
+  color: var(--text-dark);
+  font-weight: 700;
+}
+
+.InterviewProcessHeader .subtitle {
+  font-size: 1.125rem;
+  line-height: 1.5;
+  color: var(--text-medium);
+  font-weight: normal;
+}
+
+/* New wrapper for content sections */
+.InterviewProcessContentWrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: clamp(1.5rem, 3vw, 3rem);
+  width: 100%;
+}
+
+.InterviewProcessText {
+  flex: 3;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.InterviewProcessContent {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: 20px;
+}
+
+.InterviewProcessContainer h2 {
+  font-size: clamp(1.75rem, 3.5vw, 2.375rem);
+  letter-spacing: -0.0475rem;
+  line-height: 110%;
+  font-weight: 700;
+}
+
+.InterviewProcess {
+  flex: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.InterviewProcess img {
+  width: 100%;
+  height: auto;
+  border-radius: var(--border-radius-md);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  border: 1px solid rgba(107, 70, 193, 0.1);
+}
+
+.InterviewProcess img:hover {
+  transform: scale(1.02);
+}
+
+/* Second interview process container with improved layout */
+.InterviewProcessContainer2 {
+  position: relative;
+  top: 0;
+  display: flex;
+  flex-direction: row;
+  padding: clamp(30px, 5vw, 60px) clamp(20px, 4vw, 40px);
+  background-color: white;
+  border-radius: var(--border-radius-xl);
+  max-width: 1200px;
+  margin: 0 auto;
+  gap: clamp(20px, 4vw, 40px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.InterviewProcessLeft2 {
+  height: auto;
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  max-width: 35.4rem;
+  padding-right: 20px;
+}
+
+.InterviewProcessHeaderContainer2 {
+  margin-bottom: 20px;
+}
+
+.InterviewProcessHeaderContainer2 h2 {
+  margin-bottom: 20px;
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  letter-spacing: -.0475rem;
+  line-height: 1.2;
+  color: var(--text-dark);
+  font-weight: 700;
+}
+
+.InterviewProcessList2 {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  list-style: none;
+}
+
+.InterviewProcessList2 li {
+  margin-top: 10px;
+}
+
+.InterviewProcessList2 h3 {
+  font-weight: 700;
+  margin-bottom: 8px;
+  font-size: clamp(1.1rem, 2vw, 1.25rem);
+  color: var(--text-dark);
+}
+
+.InterviewProcessList2 p {
+  font-size: clamp(0.95rem, 1.8vw, 1.1rem);
+  line-height: 1.6;
+  color: var(--text-medium);
+}
+
+.cta-button2 {
+  padding: 15px 20px;
+  background-color: var(--primary-color);
+  color: white;
+  text-decoration: none;
+  border-radius: 10px;
+  transition: background 0.2s;
+  display: inline-block;
+  margin-top: 30px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.cta-button2:hover {
+  background: var(--primary-dark);
+}
+
+.InterviewProcessRight2 {
+  height: auto;
+  width: 50%;
+  max-width: 35.4rem;
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--border-radius-md);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.InterviewProcessRight2 video {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: var(--border-radius-md);
+  display: block;
+}
+
+/* Testimonials section with improved responsiveness */
+.testimonialsContainers {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+  background-color: #F7F9FE;
+  padding: clamp(3rem, 6vw, 4rem) 0;
+  position: relative;
+  width: 100%;
+  margin-bottom: 40px;
+}
+
+.testimonialsContainers::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: radial-gradient(#6B46C1 1px, transparent 1px);
+  background-size: 40px 40px;
+  opacity: 0.05;
+  pointer-events: none;
+}
+
+.testimonials-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: var(--spacing-lg) var(--spacing-sm);
+  width: 100%;
+}
+
+.testimonials-container h1 {
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  font-weight: 700;
+  color: var(--text-dark);
+  text-align: center;
+  margin-bottom: var(--spacing-xl);
+  line-height: 1.3;
+  padding: 0 var(--spacing-md);
+  max-width: 900px;
+}
+
+.testimonials-scroll-wrapper {
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+  padding: 20px 10px;
+  margin-top: 20px;
+  width: 100%;
+}
+
+.testimonials-scroll-container {
+  display: flex;
+  gap: 2.5rem;
+  animation: scroll 2000s linear infinite;
+  width: fit-content;
+}
+
+.testimonial-cards {
+  flex-shrink: 0;
+  width: clamp(280px, 30vw, 400px);
+  height: clamp(350px, 40vw, 380px);
+  background: white;
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(107, 70, 193, 0.1);
+}
+
+.testimonial-cards:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 30px rgba(107, 70, 193, 0.2);
+}
+
+.testimonial-header-tag {
+  border-radius: 2rem;
+  padding: 0.75rem 1.25rem;
+  background: var(--primary-color);
+  display: inline-block;
+  color: white;
+  font-size: 0.875rem;
+  box-shadow: 0 4px 8px rgba(107, 70, 193, 0.3);
+}
+
+.testimonial-header-tag h3 {
+  margin: 0;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.testimonial-content {
+  margin-top: 24px;
+}
+
+.testimonial-company-info {
+  display: flex;
+  align-items: center;
+  margin-top: 24px;
+}
+
+.testimonial-name {
+  line-height: 1.4;
+  letter-spacing: -0.02rem;
+  opacity: 0.8;
+  font-weight: 600;
+  color: var(--text-medium);
+  font-size: clamp(0.875rem, 1.5vw, 1rem);
+}
+
+.testimonial-text {
+  font-size: clamp(0.95rem, 1.8vw, 1.125rem);
+  color: var(--text-dark);
+  line-height: 1.6;
+  height: 100%;
+  white-space: normal;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  -webkit-box-orient: vertical;
+  margin: 0;
+}
+
+.testimonial-text b {
+  color: var(--primary-color);
+  font-weight: 700;
+}
+
+.company-logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-top: 16px;
+  height: 50px;
+}
+
+.company-logo {
+  height: 40px;
+  width: auto;
+  max-width: 120px;
+  object-fit: contain;
+  filter: grayscale(0);
+  opacity: 1;
+  transition: transform 0.3s ease;
+}
+
+.testimonial-cards:hover .company-logo {
+  transform: scale(1.05);
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(calc(-50%));
+  }
+}
+
+.testimonials-scroll-container:hover {
+  animation-play-state: paused;
+}
+
+.testimonials-scroll-wrapper::-webkit-scrollbar {
+  display: none;
+}
+
+.testimonials-scroll-wrapper {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Home containers with improved responsiveness */
+.Home-containers {
+  color: var(--text-dark);
+  padding: clamp(32px, 6vw, 64px) clamp(16px, 3vw, 32px);
+  min-height: 600px;
+  overflow: hidden;
+}
+
+.Home-contents {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.Home-headers {
+  text-align: center;
+  margin-bottom: clamp(32px, 6vw, 64px);
+  width: clamp(90%, 70%, 70%);
+}
+
+.Home-subtitles {
+  font-size: clamp(1rem, 1.8vw, 1.125rem);
+  opacity: 0.8;
+  margin-bottom: 16px;
+  font-weight: 500;
+}
+
+.Home-titles {
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  line-height: 1.2;
+  margin: 0;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.Home-descriptions {
+  font-size: clamp(1rem, 1.8vw, 1.125rem);
+  line-height: 1.6;
+  margin: 16px 0;
+  font-weight: 500;
+}
+
+.Home-features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: clamp(16px, 3vw, 32px);
+  width: 100%;
+  margin-top: 48px;
+}
+
+.Home-feature-cards {
+  padding: clamp(20px, 3vw, 32px);
+  background: white;
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--text-light);
+  box-shadow: 0 4px 6px rgba(107, 70, 193, 0.1);
+}
+
+.Home-feature-titles {
+  font-size: clamp(1.125rem, 2vw, 1.25rem);
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: var(--text-dark);
+}
+
+.Home-feature-descriptions {
+  font-size: clamp(1rem, 1.8vw, 1.125rem);
+  line-height: 1.6;
+  color: var(--text-medium);
+  font-weight: 500;
+}
+
+/* Media queries for better responsiveness */
+@media (max-width: 992px) {
+  .InterviewProcessContainer {
+    padding: 3rem 2rem;
+  }
+  
+  .InterviewProcessContent {
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  
+  .InterviewProcessList2 li {
+    margin-top: 5px;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero {
+    flex-direction: column;
+    padding: 3rem 1.5rem;
+    text-align: center;
+  }
+
+  .hero-content {
+    max-width: 100%;
+    align-items: center;
+    order: 2;
+  }
+
+  .hero-image-container {
+    order: 1;
+    margin-bottom: var(--spacing-lg);
+    max-width: 100%;
+  }
+
+  .metrics {
+    justify-content: center;
+    gap: var(--spacing-md);
+    padding: 0.5rem 0;
+  }
+  
+  .metric {
+    background-color: rgba(107, 70, 193, 0.05);
+    border-radius: var(--border-radius-sm);
+    padding: 0.75rem 1rem;
+    min-width: 140px;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .metric:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(107, 70, 193, 0.1);
+  }
+
+  .button-container {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .cta-button, .try-free-button {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .InterviewProcessContentWrapper {
+    flex-direction: column;
+  }
+
+  .InterviewProcessText {
+    width: 100%;
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .InterviewProcessContent {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+  }
+
+  .InterviewProcessContentBox {
+    min-height: 230px;
+  }
+
+  .InterviewProcessHeader {
+    text-align: center;
+  }
+  
+  .InterviewProcessHeader h3 br {
+    display: none;
+  }
+  
+  .InterviewProcessHeader h3 {
+    font-size: 1.75rem;
+    padding: 0 10px;
+  }
+  
+  .InterviewProcessContentBox h4 {
+    padding: 15px 10px;
+    font-size: 0.9rem;
+  }
+
+  .InterviewProcessContainer2 {
+    flex-direction: column;
+    padding: 30px 20px;
+  }
+
+  .InterviewProcessLeft2 {
+    width: 100%;
+    padding-right: 0;
+    margin-bottom: 20px;
+  }
+
+  .InterviewProcessRight2 {
+    width: 100%;
+  }
+
+  .InterviewProcessHeaderContainer2 {
+    text-align: center;
+  }
+  
+  .InterviewProcessList2 {
+    text-align: center;
+  }
+
+  .testimonial-cards {
+    width: 300px;
+    height: auto;
+    min-height: 380px;
+  }
+  
+  .company-logo-container {
+    justify-content: center;
+  }
+
+  .Home-headers {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero {
+    padding: 2rem 1rem;
+  }
+  
+  .hero h1 {
+    font-size: 1.75rem;
+  }
+  
+  .InterviewProcessContent {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .InterviewProcessContentBox {
+    min-height: 200px;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+  
+  .InterviewProcess img {
+    max-width: 100%;
+    margin: 0 auto;
+    display: block;
+  }
+  
+  .InterviewProcessHeader {
+    margin-bottom: 20px;
+  }
+  
+  .InterviewProcessHeader h3 {
+    font-size: 1.5rem;
+    line-height: 1.3;
+  }
+  
+  .InterviewProcessContainer {
+    padding: 2rem 1rem;
+  }
+  
+  .metric-value {
+    font-size: 1.5rem;
+  }
+  
+  .metric-label {
+    font-size: 0.875rem;
+  }
+  
+  .testimonial-cards {
+    width: 280px;
+    padding: 1.25rem;
+  }
+  
+  .testimonial-text {
+    font-size: 0.95rem;
+    -webkit-line-clamp: 5;
+  }
+  
+  .testimonialsContainers {
+    padding: 2rem 0;
+  }
+  
+  .metrics {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    gap: 1rem;
+  }
+  
+  .metric {
+    width: calc(50% - 0.5rem);
+    min-width: 0;
+    flex-direction: column;
+    padding: 0.75rem 0.5rem;
+    text-align: center;
+  }
+  
+  .metric-value {
+    font-size: 1.5rem;
+    margin-bottom: 0.25rem;
+  }
+  
+  .metric-label {
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+  
+  .separator {
+    display: none;
+  }
+}

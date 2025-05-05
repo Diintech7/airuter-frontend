@@ -1,0 +1,31 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+
+.landing-page {
+
+  /* margin: 0 auto; */
+  padding: 5rem 0rem ;
+}
+
+.product-demo {
+  margin-top: 4rem;
+}
+
+
+
+@media (max-width: 768px) {
+  .demo-features {
+    position: static;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .feature {
+    max-width: none;
+  }
+}

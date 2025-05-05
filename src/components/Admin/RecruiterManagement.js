@@ -68,7 +68,7 @@ const RecruiterManagement = () => {
         return;
       }
 
-      const response = await axios.get('https://auriter-backen.onrender.com/api/admin/recruiters', {
+      const response = await axios.get('https://airuter-backend.onrender.com/api/admin/recruiters', {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -120,7 +120,7 @@ const RecruiterManagement = () => {
       console.log("Before impersonation - existing token:", Cookies.get('usertoken'));
       
       const response = await axios.post(
-        `https://auriter-backen.onrender.com/api/admin/users/${userId}/impersonate`,
+        `https://airuter-backend.onrender.com/api/admin/users/${userId}/impersonate`,
         {},
         { headers: { Authorization: `Bearer ${adminToken}` } }
       );
@@ -182,7 +182,7 @@ const RecruiterManagement = () => {
       if (editMode) {
         // Update existing recruiter
         response = await axios.put(
-          `https://auriter-backen.onrender.com/api/admin/recruiters/${currentRecruiter._id}`,
+          `https://airuter-backend.onrender.com/api/admin/recruiters/${currentRecruiter._id}`,
           formData,
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -190,7 +190,7 @@ const RecruiterManagement = () => {
       } else {
         // Create new recruiter
         response = await axios.post(
-          'https://auriter-backen.onrender.com/api/admin/recruiters',
+          'https://airuter-backend.onrender.com/api/admin/recruiters',
           formData,
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -225,7 +225,7 @@ const RecruiterManagement = () => {
           return;
         }
         
-        const response = await axios.delete(`https://auriter-backen.onrender.com/api/admin/recruiters/${id}`, {
+        const response = await axios.delete(`https://airuter-backend.onrender.com/api/admin/recruiters/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         

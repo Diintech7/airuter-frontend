@@ -16,7 +16,7 @@ const LinkedInForm = ({ onBack }) => {
     setLoading(true);
 
     try {
-      const response = await fetch('https://auriter-backen.onrender.com/api/profile/linkedin', {
+      const response = await fetch('https://airuter-backend.onrender.com/api/profile/linkedin', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

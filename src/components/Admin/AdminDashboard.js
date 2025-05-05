@@ -38,7 +38,7 @@ const AdminDashboard = () => {
       }
 
       // Make the request to the admin dashboard endpoint
-      const response = await fetch('https://auriter-backen.onrender.com/api/admin/dashboard', {
+      const response = await fetch('https://airuter-backend.onrender.com/api/admin/dashboard', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

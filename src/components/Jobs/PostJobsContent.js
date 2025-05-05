@@ -38,7 +38,7 @@ const PostJobsContent = () => {
       const token = Cookies.get('usertoken');
       if (!token) return;
 
-      const response = await fetch('https://auriter-backen.onrender.com/api/company/profile', {
+      const response = await fetch('https://airuter-backend.onrender.com/api/company/profile', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -135,7 +135,7 @@ const PostJobsContent = () => {
         logo: companyProfile?.logo // Send the logo URL directly
       };
 
-      const response = await fetch('https://auriter-backen.onrender.com/api/jobs', {
+      const response = await fetch('https://airuter-backend.onrender.com/api/jobs', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -187,7 +187,7 @@ const PostJobsContent = () => {
         throw new Error('Authentication token not found. Please log in again.');
       }
 
-      const response = await fetch('https://auriter-backen.onrender.com/api/jobs/generate-details', {
+      const response = await fetch('https://airuter-backend.onrender.com/api/jobs/generate-details', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

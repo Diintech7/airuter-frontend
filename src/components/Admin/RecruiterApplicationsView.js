@@ -30,7 +30,7 @@ const RecruiterApplicationsView = () => {
       }
 
       // First get recruiter details
-      const recruiterResponse = await axios.get(`https://auriter-backen.onrender.com/api/admin/recruiters/${recruiterId}`, {
+      const recruiterResponse = await axios.get(`https://airuter-backend.onrender.com/api/admin/recruiters/${recruiterId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -39,7 +39,7 @@ const RecruiterApplicationsView = () => {
       }
 
       // Then get applications for jobs posted by this recruiter
-      const applicationsResponse = await axios.get(`https://auriter-backen.onrender.com/api/admin/recruiters/${recruiterId}/applications`, {
+      const applicationsResponse = await axios.get(`https://airuter-backend.onrender.com/api/admin/recruiters/${recruiterId}/applications`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       

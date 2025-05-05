@@ -19,7 +19,7 @@ const ImpersonationHandler = () => {
           return;
         }
 
-        const response = await axios.get(`https://auriter-backen.onrender.com/api/admin/recruiters/${recruiterId}`, {
+        const response = await axios.get(`https://airuter-backend.onrender.com/api/admin/recruiters/${recruiterId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         

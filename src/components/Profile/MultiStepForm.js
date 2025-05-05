@@ -72,7 +72,7 @@ const MultiStepForm = ({ onBack }) => {
 
   const handleSubmit = async () => {
     try {
-      const response = await fetch('https://auriter-backen.onrender.com/api/profile/create', {
+      const response = await fetch('https://airuter-backend.onrender.com/api/profile/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

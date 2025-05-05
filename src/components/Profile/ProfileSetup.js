@@ -21,7 +21,7 @@ const ProfileSetup = ({ onComplete, onSkip }) => {
   const fetchProfileData = async () => {
     try {
       setLoading(true);
-      const response = await fetch('https://auriter-backen.onrender.com/api/profile', {
+      const response = await fetch('https://airuter-backend.onrender.com/api/profile', {
         headers: {
           'Authorization': `Bearer ${Cookies.get('usertoken')}`
         }
@@ -40,7 +40,7 @@ const ProfileSetup = ({ onComplete, onSkip }) => {
     try {
       setError(null);
       
-      const response = await fetch('https://auriter-backen.onrender.com/api/profile/create', {
+      const response = await fetch('https://airuter-backend.onrender.com/api/profile/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -71,7 +71,7 @@ const ProfileSetup = ({ onComplete, onSkip }) => {
 
   const handleUpdateProfile = async (formData) => {
     try {
-      const response = await fetch('https://auriter-backen.onrender.com/api/profile', {
+      const response = await fetch('https://airuter-backend.onrender.com/api/profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

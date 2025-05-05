@@ -38,7 +38,7 @@ const JobListings = () => {
   // Fetch jobs from API
   const fetchJobs = async () => {
     try {
-      const response = await fetch('https://auriter-backen.onrender.com/api/jobs', {
+      const response = await fetch('https://airuter-backend.onrender.com/api/jobs', {
         headers: {
           'Authorization': `Bearer ${Cookies.get('usertoken')}`
         }

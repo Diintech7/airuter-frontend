@@ -15,7 +15,7 @@ const JobApplicationsContent = ({ jobId }) => {
         const token = Cookies.get('usertoken');
         
         // Fetch job details
-        const jobResponse = await fetch(`https://auriter-backen.onrender.com/api/jobs/${jobId}`, {
+        const jobResponse = await fetch(`https://airuter-backend.onrender.com/api/jobs/${jobId}`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -26,7 +26,7 @@ const JobApplicationsContent = ({ jobId }) => {
         setJob(jobData);
         
         // Fetch applications for this job
-        const applicationsResponse = await fetch(`https://auriter-backen.onrender.com/api/applications/job/${jobId}`, {
+        const applicationsResponse = await fetch(`https://airuter-backend.onrender.com/api/applications/job/${jobId}`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }

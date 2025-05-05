@@ -40,7 +40,7 @@ const JobDetail = () => {
   useEffect(() => {
     const fetchJobDetail = async () => {
       try {
-        const response = await fetch(`https://auriter-backen.onrender.com/api/jobs/${jobId}`, {
+        const response = await fetch(`https://airuter-backend.onrender.com/api/jobs/${jobId}`, {
           headers: {
             'Authorization': `Bearer ${Cookies.get('usertoken')}`
           }
@@ -57,7 +57,7 @@ const JobDetail = () => {
 
     const fetchUserProfile = async () => {
       try {
-        const response = await fetch('https://auriter-backen.onrender.com/api/profile', {
+        const response = await fetch('https://airuter-backend.onrender.com/api/profile', {
           headers: {
             'Authorization': `Bearer ${Cookies.get('usertoken')}`
           }
@@ -180,7 +180,7 @@ const JobDetail = () => {
         type: 'coverLetter'
       };
       
-      const response = await fetch(`https://auriter-backen.onrender.com/api/applications/generate-content`, {
+      const response = await fetch(`https://airuter-backend.onrender.com/api/applications/generate-content`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -252,7 +252,7 @@ const JobDetail = () => {
       if (resumeTab === 'upload') {
         formData.append('resume', applicationData.resume);
       } else if (resumeTab === 'existing' && userProfile && userProfile.resumePath) {
-        const response = await fetch(`https://auriter-backen.onrender.com/api/profile${userProfile.resumePath}`);
+        const response = await fetch(`https://airuter-backend.onrender.com/api/profile${userProfile.resumePath}`);
         const blob = await response.blob();
         const filename = userProfile.resumePath.split('/').pop();
         formData.append('resume', blob, filename);
@@ -262,7 +262,7 @@ const JobDetail = () => {
       formData.append('additionalNotes', applicationData.additionalNotes);
       setSubmissionStage('processing');
       
-      const response = await fetch(`https://auriter-backen.onrender.com/api/applications/${jobId}`, {
+      const response = await fetch(`https://airuter-backend.onrender.com/api/applications/${jobId}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${Cookies.get('usertoken')}`
@@ -316,7 +316,7 @@ const JobDetail = () => {
 
   const viewResume = () => {
     if (userProfile && userProfile.resumePath) {
-      window.open(`https://auriter-backen.onrender.com/api/profile${userProfile.resumePath}`, '_blank');
+      window.open(`https://airuter-backend.onrender.com/api/profile${userProfile.resumePath}`, '_blank');
     }
   };
 

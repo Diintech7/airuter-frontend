@@ -47,7 +47,7 @@ const ResumeAnalyzerPage = () => {
     formDataToSend.append('jobDescription', formData.jobDescription);
   
     try {
-      const response = await fetch('https://auriter-backen.onrender.com/api/resume/analyze-pdf', {
+      const response = await fetch('https://airuter-backend.onrender.com/api/resume/analyze-pdf', {
         method: 'POST',
         body: formDataToSend,
       });

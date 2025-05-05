@@ -34,7 +34,7 @@ const RecruiterDetailView = ({ recruiter, onClose, onEdit, onDelete }) => {
       }
 
       // Updated API endpoint to match the backend route definition
-      const response = await axios.get(`https://auriter-backen.onrender.com/api/admin/recruiters/${recruiter._id}`, {
+      const response = await axios.get(`https://airuter-backend.onrender.com/api/admin/recruiters/${recruiter._id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -83,7 +83,7 @@ const RecruiterDetailView = ({ recruiter, onClose, onEdit, onDelete }) => {
       const newStatus = !recruiter.isActive;
       // Updated to match the backend route definition (using status key instead of isActive)
       const response = await axios.put(
-        `https://auriter-backen.onrender.com/api/admin/recruiters/${recruiter._id}/status`,
+        `https://airuter-backend.onrender.com/api/admin/recruiters/${recruiter._id}/status`,
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );

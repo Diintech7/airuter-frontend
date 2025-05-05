@@ -28,7 +28,7 @@ const InterviewResults = () => {
   const fetchInterviewResults = async () => {
     try {
       const token = Cookies.get('usertoken');
-      const response = await fetch(`https://auriter-backen.onrender.com/api/interview/application/${applicationId}`, {
+      const response = await fetch(`https://airuter-backend.onrender.com/api/interview/application/${applicationId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 

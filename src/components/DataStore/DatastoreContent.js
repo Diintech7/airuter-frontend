@@ -182,7 +182,7 @@ const DatastoreContent = () => {
         throw new Error('Authentication token not found');
       }
 
-      const response = await axios.get('https://auriter-backen.onrender.com/api/datastore', {
+      const response = await axios.get('https://airuter-backend.onrender.com/api/datastore', {
         headers: {
           Authorization: `Bearer ${token}`,
         }
@@ -301,7 +301,7 @@ const DatastoreContent = () => {
         }
       }
 
-      const response = await axios.post('https://auriter-backen.onrender.com/api/datastore', requestData, {
+      const response = await axios.post('https://airuter-backend.onrender.com/api/datastore', requestData, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -330,7 +330,7 @@ const DatastoreContent = () => {
     try {
       const token = Cookies.get('usertoken');
       
-      await axios.delete(`https://auriter-backen.onrender.com/api/datastore/${id}`, {
+      await axios.delete(`https://airuter-backend.onrender.com/api/datastore/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

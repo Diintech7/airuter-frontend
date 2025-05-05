@@ -42,7 +42,7 @@ const SidebarLayout = ({ onLogout, userRole }) => {
 
   const fetchCompanyProfile = async () => {
     try {
-      const response = await fetch('https://auriter-backen.onrender.com/api/company/profile', {
+      const response = await fetch('https://airuter-backend.onrender.com/api/company/profile', {
         headers: {
           'Authorization': `Bearer ${Cookies.get('usertoken')}`
         }
@@ -61,7 +61,7 @@ const SidebarLayout = ({ onLogout, userRole }) => {
 
   const fetchUserData = async () => {
     try {
-      const response = await fetch('https://auriter-backen.onrender.com/api/auth/validate', {
+      const response = await fetch('https://airuter-backend.onrender.com/api/auth/validate', {
         headers: {
           'Authorization': `Bearer ${Cookies.get('usertoken')}`
         }
@@ -80,7 +80,7 @@ const SidebarLayout = ({ onLogout, userRole }) => {
 
   const checkProfileStatus = async () => {
     try {
-      const response = await fetch('https://auriter-backen.onrender.com/api/profile/status', {
+      const response = await fetch('https://airuter-backend.onrender.com/api/profile/status', {
         headers: {
           'Authorization': `Bearer ${Cookies.get('usertoken')}`
         }

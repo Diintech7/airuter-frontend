@@ -144,13 +144,13 @@ const ShortForm = ({ currentShort, setShowForm, refreshShorts }) => {
       
       if (currentShort) {
         // Update existing short
-        await axios.put(`https://auriter-backen.onrender.com/api/shorts/${currentShort._id}`, dataToSubmit, {
+        await axios.put(`https://airuter-backend.onrender.com/api/shorts/${currentShort._id}`, dataToSubmit, {
           headers,
           credentials: 'include'
         });
       } else {
         // Create new short
-        await axios.post('https://auriter-backen.onrender.com/api/shorts', dataToSubmit, {
+        await axios.post('https://airuter-backend.onrender.com/api/shorts', dataToSubmit, {
           headers,
           credentials: 'include'
         });

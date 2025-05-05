@@ -106,7 +106,7 @@ const InterviewRoom = () => {
     const fetchInterviewDetails = async () => {
       try {
         console.log('Fetching interview details...');
-        const response = await axios.get(`https://auriter-backen.onrender.com/api/interview/details/${roomId}`);
+        const response = await axios.get(`https://airuter-backend.onrender.com/api/interview/details/${roomId}`);
         const { date, time, jobTitle, document } = response.data;
         const interviewDateTime = new Date(`${date}T${time}`);
         setInterviewTime(interviewDateTime);
@@ -220,7 +220,7 @@ const InterviewRoom = () => {
   const fetchQuestions = async () => {
     try {
       console.log('Fetching interview questions...');
-      const response = await axios.get(`https://auriter-backen.onrender.com/api/interview/questions/${roomId}`);
+      const response = await axios.get(`https://airuter-backend.onrender.com/api/interview/questions/${roomId}`);
       setQuestions(response.data.questions);
       setResponses(response.data.questions.map(() => ''));
       
@@ -447,7 +447,7 @@ const InterviewRoom = () => {
       console.log('Submitting all responses...');
       
       const submitPromises = questions.map((question, index) => {
-        return axios.post(`https://auriter-backen.onrender.com/api/interview/response/${roomId}`, {
+        return axios.post(`https://airuter-backend.onrender.com/api/interview/response/${roomId}`, {
           question,
           response: finalResponses[index]
         });
@@ -475,7 +475,7 @@ const InterviewRoom = () => {
     try {
       console.log('Analyzing responses...');
       
-      const response = await axios.post('https://auriter-backen.onrender.com/api/interview/analyze', {
+      const response = await axios.post('https://airuter-backend.onrender.com/api/interview/analyze', {
         roomId,
         questions,
         answers: finalResponses

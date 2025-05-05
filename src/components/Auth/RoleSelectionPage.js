@@ -186,7 +186,7 @@ const RoleSelectionPage = ({ onAuthSuccess }) => {
       }
 
       setIsLoading(true);
-      const response = await fetch('https://auriter-backen.onrender.com/api/auth/set-role', {
+      const response = await fetch('https://airuter-backend.onrender.com/api/auth/set-role', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -217,7 +217,7 @@ const RoleSelectionPage = ({ onAuthSuccess }) => {
     
     try {
       setIsLoading(true);
-      const response = await fetch('https://auriter-backen.onrender.com/api/auth/set-role', {
+      const response = await fetch('https://airuter-backend.onrender.com/api/auth/set-role', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

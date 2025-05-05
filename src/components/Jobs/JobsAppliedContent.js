@@ -44,7 +44,7 @@ const JobsAppliedContent = () => {
   const fetchApplications = async () => {
     try {
       setLoading(true);
-      const response = await fetch('https://auriter-backen.onrender.com/api/jobs-applied/my-applications', {
+      const response = await fetch('https://airuter-backend.onrender.com/api/jobs-applied/my-applications', {
         headers: {
           'Authorization': `Bearer ${Cookies.get('usertoken')}`
         }

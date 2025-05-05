@@ -47,7 +47,7 @@ const ResumeUpload = ({ onBack }) => {
     }
   
     try {
-      const response = await fetch('https://auriter-backen.onrender.com/api/profile/resume', {
+      const response = await fetch('https://airuter-backend.onrender.com/api/profile/resume', {
         method: 'POST',
         body: formData,
         headers: {

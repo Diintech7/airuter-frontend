@@ -13,7 +13,7 @@ const ViewJobContent = ({ jobId }) => {
       try {
         setLoading(true);
         const token = Cookies.get('usertoken');
-        const response = await fetch(`https://auriter-backen.onrender.com/api/jobs/${jobId}`, {
+        const response = await fetch(`https://airuter-backend.onrender.com/api/jobs/${jobId}`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }

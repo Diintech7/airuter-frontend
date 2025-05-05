@@ -58,7 +58,7 @@ const UserApp = () => {
             }
       
             // Validate the token with the server
-            const response = await fetch('https://auriter-backen.onrender.com/api/auth/validate', {
+            const response = await fetch('https://airuter-backend.onrender.com/api/auth/validate', {
               headers: {
                 'Authorization': `Bearer ${token}`
               }
@@ -101,7 +101,7 @@ const UserApp = () => {
   };
   const validateToken = async (token) => {
     try {
-      const response = await fetch('https://auriter-backen.onrender.com/api/auth/validate', {
+      const response = await fetch('https://airuter-backend.onrender.com/api/auth/validate', {
         headers: {
           'Authorization': `Bearer ${token}`
         }

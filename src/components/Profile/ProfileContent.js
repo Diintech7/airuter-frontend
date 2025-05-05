@@ -18,7 +18,7 @@ const ProfileContent = () => {
   const fetchProfileData = async () => {
     try {
       setLoading(true);
-      const response = await fetch('https://auriter-backen.onrender.com/api/profile', {
+      const response = await fetch('https://airuter-backend.onrender.com/api/profile', {
         headers: {
           'Authorization': `Bearer ${Cookies.get('usertoken')}`
         }
@@ -40,7 +40,7 @@ const ProfileContent = () => {
   const handleProfileUpdate = async (updatedData) => {
     try {
       setError(null);
-      const response = await fetch('https://auriter-backen.onrender.com/api/profile', {
+      const response = await fetch('https://airuter-backend.onrender.com/api/profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

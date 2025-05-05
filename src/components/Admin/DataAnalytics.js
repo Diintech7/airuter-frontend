@@ -88,7 +88,7 @@ const DataAnalytics = () => {
       try {
         setLoading(true);
         // In a real implementation, you would pass the timeRange to the API
-        const response = await axios.get('https://auriter-backen.onrender.com/api/admin/dashboard/stats', {
+        const response = await axios.get('https://airuter-backend.onrender.com/api/admin/dashboard/stats', {
           headers: { Authorization: `Bearer ${Cookies.get('admintoken')}` }
         });
         setStats(response.data.data);

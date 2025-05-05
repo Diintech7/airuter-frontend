@@ -75,7 +75,7 @@ const RecruiterDetailView = ({ recruiter, onClose, onEdit, onDelete }) => {
     try {
       const token = Cookies.get('admintoken');
       if (!token) {
-        toast.error('Authentication required');
+        toast.error('Authentication required')
         navigate('/admin/login');
         return;
       }

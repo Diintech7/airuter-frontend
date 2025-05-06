@@ -7,7 +7,7 @@ import Cookies from 'js-cookie';
 const App = () => {
   useEffect(() => {
     const token = Cookies.get('usertoken');
-    const admintoken = Cookies.get('admintoken');
+    const admintoken = Cookies.get('admintoken')
     
     console.log("User token:", token);
     console.log("Admin token:", admintoken);

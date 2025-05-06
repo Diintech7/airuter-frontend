@@ -37,12 +37,14 @@ import EditJobContent from './components/Jobs/EditJobContent';
 import JobApplicationsContent from './components/Applications/JobApplicationsContent';
 import JobCandidatesContent from './components/Candidates/JobCandidatesContent';
 import CompanyProfile from './components/Recruiter/CompanyProfile';
+
 const UserApp = () => {
   const { theme } = useTheme();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+
   useEffect(() => {
     const initializeAuth = async () => {
         const token = Cookies.get('usertoken');
@@ -92,13 +94,16 @@ const UserApp = () => {
       };
     initializeAuth();
   }, []);
+
   const clearAuth = () => {
-    Cookies.remove('token', { path: '/' });
+    // Fixed: Changed 'token' to 'usertoken' to match the cookie name used in the app
+    Cookies.remove('usertoken', { path: '/' });
     Cookies.remove('user', { path: '/' });
     setIsAuthenticated(false);
     setUserRole(null);
     setIsLoading(false);
   };
+
   const validateToken = async (token) => {
     try {
       const response = await fetch('https://airuter-backend.onrender.com/api/auth/validate', {
@@ -120,15 +125,18 @@ const UserApp = () => {
       setIsLoading(false);
     }
   };
+
   const handleAuthSuccess = (role) => {
     setIsAuthenticated(true);
     setUserRole(role);
     console.log(`Auth success: role=${role}`);
   };
+
   const handleLogout = () => {
     clearAuth();
     navigate('/auth');
   };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -136,6 +144,7 @@ const UserApp = () => {
       </div>
     );
   }
+
   return (
     <div className={`app-container ${theme}`}>
       <HMSRoomProvider>
@@ -217,4 +226,5 @@ const UserApp = () => {
     </div>
   );
 };
+
 export default UserApp;

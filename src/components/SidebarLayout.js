@@ -198,50 +198,50 @@ const SidebarLayout = ({ onLogout, userRole }) => {
 
         {/* Settings button with dropdown */}
         <div className={`absolute bottom-0 w-full border-t ${isDark ? 'border-gray-700' : 'border-gray-200'} p-4`}>
-          <div className="relative">
-            <div 
-              onClick={handleSettingsClick}
-              className={`flex items-center justify-center cursor-pointer ${hoverClass} ${isDark ? 'text-white' : 'text-gray-700'} transition-colors duration-200 p-2 rounded-full`}
-            >
-              <Settings size={20} />
-              {isExpanded && (
-                <span className="ml-4">Settings</span>
-              )}
-            </div>
+  <div className="relative">
+    <div 
+      onClick={handleSettingsClick}
+      className={`flex items-center justify-center cursor-pointer ${hoverClass} ${isDark ? 'text-white' : 'text-gray-700'} transition-colors duration-200 p-2 rounded-full`}
+    >
+      <Settings size={20} />
+      {isExpanded && (
+        <span className="ml-4">Settings</span>
+      )}
+    </div>
 
-            {/* Settings Dropdown */}
-            {showSettings && (
-              <div className={`absolute bottom-full left-0 w-48 mb-2 py-2 rounded-lg shadow-lg ${isDark ? 'bg-gray-800 text-white border border-gray-700' : 'bg-white text-gray-900 border border-gray-200'}`}>
-                {/* Theme Toggle */}
-                <button
-                  onClick={toggleTheme}
-                  className={`w-full px-4 py-2 text-left flex items-center ${hoverClass} ${isDark ? 'text-white' : 'text-gray-700'}`}
-                >
-                  {isDark ? (
-                    <>
-                      <Sun size={16} className="mr-2" />
-                      <span>Light Mode</span>
-                    </>
-                  ) : (
-                    <>
-                      <Moon size={16} className="mr-2" />
-                      <span>Dark Mode</span>
-                    </>
-                  )}
-                </button>
+    {/* Settings Dropdown */}
+    {showSettings && (
+      <div className={`absolute bottom-full left-0 w-48 mb-2 py-2 rounded-lg shadow-lg ${isDark ? 'bg-gray-800 text-white border border-gray-700' : 'bg-white text-gray-900 border border-gray-200'}`}>
+        {/* Theme Toggle */}
+        <button
+          onClick={toggleTheme}
+          className={`w-full px-4 py-2 text-left flex items-center ${hoverClass} ${isDark ? 'text-white' : 'text-gray-700'}`}
+        >
+          {isDark ? (
+            <>
+              <Sun size={16} className="mr-2" />
+              <span>Light Mode</span>
+            </>
+          ) : (
+            <>
+              <Moon size={16} className="mr-2" />
+              <span>Dark Mode</span>
+            </>
+          )}
+        </button>
 
-                {/* Logout Button */}
-                <button
-                  onClick={onLogout}
-                  className={`w-full px-4 py-2 text-left flex items-center ${hoverClass} ${isDark ? 'text-red-400' : 'text-red-600'}`}
-                >
-                  <LogOut size={16} className="mr-2" />
-                  <span>Logout</span>
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
+        {/* Logout Button */}
+        <button
+          onClick={onLogout}
+          className={`w-full px-4 py-2 text-left flex items-center ${hoverClass} ${isDark ? 'text-red-400' : 'text-red-600'}`}
+        >
+          <LogOut size={16} className="mr-2" />
+          <span>Logout</span>
+        </button>
+      </div>
+    )}
+  </div>
+</div>
       </div>
 
       {/* Main content */}

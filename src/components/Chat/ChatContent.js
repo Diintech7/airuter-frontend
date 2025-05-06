@@ -132,7 +132,7 @@ const ChatContent = () => {
 
       console.log(`Opening transcript WebSocket with language: ${language}`);
       transcriptWsRef.current = new WebSocket(
-        `wss://auriter-backen.onrender.com/ws/transcribe?language=${language}&model=nova-2`
+        `wss://airuter-backend.onrender.com/ws/transcribe?language=${language}&model=nova-2`
       );
 
       await new Promise((resolve, reject) => {
@@ -421,7 +421,7 @@ const ChatContent = () => {
       await audioStreamRef.current.resume();
 
       console.log('Opening speech WebSocket');
-      const ws = new WebSocket('wss://auriter-backen.onrender.com/ws/speech');
+      const ws = new WebSocket('wss://airuter-backend.onrender.com/ws/speech');
       speechWsRef.current = ws;
       
       ws.onopen = () => {

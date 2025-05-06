@@ -108,7 +108,7 @@ const VoiceInteraction = () => {
       
       await audioStreamRef.current.resume();
 
-      const ws = new WebSocket('wss://auriter-backen.onrender.com/ws/speech');
+      const ws = new WebSocket('wss://airuter-backend.onrender.com/ws/speech');
       
       ws.onopen = () => {
         const request = {
@@ -226,7 +226,7 @@ const VoiceInteraction = () => {
       setIsSpeaking(false);
 
       transcriptWsRef.current = new WebSocket(
-        `wss://auriter-backen.onrender.com/ws/transcribe?language=${language}&model=nova-2`
+        `wss://airuter-backend.onrender.com/ws/transcribe?language=${language}&model=nova-2`
       );
 
       await new Promise((resolve, reject) => {

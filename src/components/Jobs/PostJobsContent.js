@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, X, AlertCircle, CheckCircle2, Loader2, ArrowRight, Edit2, ArrowLeft } from 'lucide-react';
+import { Plus, X, AlertCircle, CheckCircle2, Loader2, ArrowRight, Edit2, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import Cookies from 'js-cookie';
 import { useThemeStyles } from '../hooks/useThemeStyles';
 import { Link } from 'react-router-dom';
@@ -18,11 +18,12 @@ const PostJobsContent = () => {
     location: '',
     type: 'full-time',
     experience: { min: 0, max: 0 },
-    salary: { min: 0, max: 0, currency: 'USD' },
+    salary: { min: 0, max: 0, currency: 'INR' },
     skills: [''],
     benefits: [''],
     applicationDeadline: '',
-    status: 'active'
+    status: 'active',
+    visibility: 'public'
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -129,10 +130,14 @@ const PostJobsContent = () => {
         throw new Error('Authentication token not found. Please log in again.');
       }
 
-      // Send the job data with the logo URL from companyProfile
+      // Send the job data with the logo URL from companyProfile and INR as default currency
       const jobData = {
         ...jobForm,
-        logo: companyProfile?.logo // Send the logo URL directly
+        logo: companyProfile?.logo, // Send the logo URL directly
+        salary: {
+          ...jobForm.salary,
+          currency: 'INR' // Force INR as currency
+        }
       };
 
       const response = await fetch('https://airuter-backend.onrender.com/api/jobs', {
@@ -165,11 +170,12 @@ const PostJobsContent = () => {
         location: '',
         type: 'full-time',
         experience: { min: 0, max: 0 },
-        salary: { min: 0, max: 0, currency: 'USD' },
+        salary: { min: 0, max: 0, currency: 'INR' },
         skills: [''],
         benefits: [''],
         applicationDeadline: '',
-        status: 'active'
+        status: 'active',
+        visibility: 'public'
       });
       setCurrentStep(1);
     } catch (err) {
@@ -198,7 +204,7 @@ const PostJobsContent = () => {
           company: jobForm.company,
           type: jobForm.type,
           location: jobForm.location,
-          currency: jobForm.salary.currency
+          currency: 'INR' // Always use INR
         })
       });
 
@@ -218,8 +224,9 @@ const PostJobsContent = () => {
         benefits: data.benefits?.length ? data.benefits : jobForm.benefits,
         experience: data.experience || jobForm.experience,
         salary: {
-          ...data.salary,
-          currency: jobForm.salary.currency
+          min: data.salary?.min || jobForm.salary.min,
+          max: data.salary?.max || jobForm.salary.max,
+          currency: 'INR' // Always set to INR
         }
       });
 
@@ -324,22 +331,42 @@ const PostJobsContent = () => {
         </div>
       </div>
 
+      {/* Job Visibility */}
       <div className="space-y-2">
-        <label className={`text-sm font-semibold ${colors.textPrimary}`}>Currency*</label>
-        <select
-          value={jobForm.salary.currency}
-          onChange={(e) => handleInputChange('salary', { ...jobForm.salary, currency: e.target.value })}
-          className={`w-full px-4 py-2 rounded-lg border ${colors.border} ${isDark ? 'bg-gray-700 text-white' : 'bg-white text-gray-900'} focus:border-purple-500 focus:ring-2 focus:ring-purple-200 ${styles.transition}`}
-          required
-        >
-          <option value="USD">USD ($)</option>
-          <option value="EUR">EUR (€)</option>
-          <option value="GBP">GBP (£)</option>
-          <option value="INR">INR (₹)</option>
-          <option value="JPY">JPY (¥)</option>
-          <option value="AUD">AUD (A$)</option>
-          <option value="CAD">CAD (C$)</option>
-        </select>
+        <label className={`text-sm font-semibold ${colors.textPrimary}`}>Job Visibility*</label>
+        <div className="flex items-center space-x-6">
+          <label className="flex items-center space-x-2 cursor-pointer">
+            <input
+              type="radio"
+              name="visibility"
+              value="public"
+              checked={jobForm.visibility === 'public'}
+              onChange={(e) => handleInputChange('visibility', e.target.value)}
+              className="w-4 h-4 text-purple-600 focus:ring-purple-500"
+            />
+            <div className="flex items-center space-x-2">
+              <Eye size={16} className={colors.textSecondary} />
+              <span className={`text-sm ${colors.textPrimary}`}>Public</span>
+            </div>
+          </label>
+          <label className="flex items-center space-x-2 cursor-pointer">
+            <input
+              type="radio"
+              name="visibility"
+              value="private"
+              checked={jobForm.visibility === 'private'}
+              onChange={(e) => handleInputChange('visibility', e.target.value)}
+              className="w-4 h-4 text-purple-600 focus:ring-purple-500"
+            />
+            <div className="flex items-center space-x-2">
+              <EyeOff size={16} className={colors.textSecondary} />
+              <span className={`text-sm ${colors.textPrimary}`}>Private</span>
+            </div>
+          </label>
+        </div>
+        <p className={`text-xs ${colors.textSecondary} mt-1`}>
+          Public jobs are visible to all users. Private jobs are only visible to invited candidates.
+        </p>
       </div>
 
       <div className="flex justify-end">
@@ -476,7 +503,7 @@ const PostJobsContent = () => {
         
         <div>
           <div className="flex justify-between items-center mb-4">
-            <h3 className={`text-sm font-semibold ${colors.textPrimary}`}>Salary Range</h3>
+            <h3 className={`text-sm font-semibold ${colors.textPrimary}`}>Salary Range (INR)</h3>
             <span className="text-xs text-purple-600">AI Generated</span>
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -568,7 +595,7 @@ const PostJobsContent = () => {
               <div className={`w-10 h-10 rounded-full flex items-center justify-center ${currentStep >= 2 ? (isDark ? 'bg-purple-700 text-white' : 'bg-purple-600 text-white') : (isDark ? 'bg-gray-700 text-gray-400' : 'bg-gray-200 text-gray-600')}`}>
                 2
               </div>
-              <div className={`h-1 flex-1 ${currentStep > 2 ? (isDark ? 'bg-purple-700' : 'bg-purple-600') : (isDark ? 'bg-gray-700' : 'bg-gray-200')}`}></div>
+              <div className={`h-1 flex-1 ${currentStep > 2 ? (isDark ? 'bg-purple-700' : 'bg-purple-600') : (isDark ? 'bg-gray-700' : 'bg-gray-200')}`} ></div>
             </div>
             <div className="w-full flex items-center">
               <div className={`w-10 h-10 rounded-full flex items-center justify-center ${currentStep >= 3 ? (isDark ? 'bg-purple-700 text-white' : 'bg-purple-600 text-white') : (isDark ? 'bg-gray-700 text-gray-400' : 'bg-gray-200 text-gray-600')}`}>

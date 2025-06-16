@@ -29,20 +29,26 @@ const JobDetail = () => {
   const [selectedResume, setSelectedResume] = useState(null);
   const [showCoverLetterFullscreen, setShowCoverLetterFullscreen] = useState(false);
   const [extractingCoverLetter, setExtractingCoverLetter] = useState(false);
-
   const [coverLetterFile, setCoverLetterFile] = useState(null);
+
   const navigate = useNavigate();
   const location = useLocation();
   const jobId = location.pathname.split('/').pop();
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
+  // Get the appropriate auth token based on user type
+  const getAuthToken = () => {
+    return Cookies.get('candidatetoken') || Cookies.get('usertoken');
+  };
+
   useEffect(() => {
     const fetchJobDetail = async () => {
       try {
+        const token = getAuthToken();
         const response = await fetch(`https://airuter-backend.onrender.com/api/jobs/${jobId}`, {
           headers: {
-            'Authorization': `Bearer ${Cookies.get('usertoken')}`
+            'Authorization': `Bearer ${token}`
           }
         });
         if (!response.ok) throw new Error('Failed to fetch job details');
@@ -57,9 +63,10 @@ const JobDetail = () => {
 
     const fetchUserProfile = async () => {
       try {
+        const token = getAuthToken();
         const response = await fetch('https://airuter-backend.onrender.com/api/profile', {
           headers: {
-            'Authorization': `Bearer ${Cookies.get('usertoken')}`
+            'Authorization': `Bearer ${token}`
           }
         });
         if (response.ok) {
@@ -76,6 +83,8 @@ const JobDetail = () => {
     fetchJobDetail();
     fetchUserProfile();
   }, [jobId]);
+
+  // Theme colors
   const textColor = isDark ? 'text-white' : 'text-gray-900';
   const subTextColor = isDark ? 'text-gray-300' : 'text-gray-600';
   const cardBg = isDark ? 'bg-gray-800' : 'bg-white';
@@ -118,19 +127,13 @@ const JobDetail = () => {
     if (file) {
       setCoverLetterFile(file);
       setExtractingCoverLetter(true);
-      
       try {
         let extractedText = '';
-        
         if (file.type === 'application/pdf' || 
             file.type === 'application/msword' || 
             file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-          // For now, just a placeholder as we'd need PDF.js or mammoth.js for actual extraction
-          // In a real implementation, you'd use the appropriate library
           extractedText = "Content extraction in progress. In production, this would contain the actual text from your document.";
-          
         } else if (file.type === 'text/plain') {
-          // For text files, we can extract directly
           const reader = new FileReader();
           extractedText = await new Promise((resolve, reject) => {
             reader.onload = (e) => resolve(e.target.result);
@@ -140,15 +143,10 @@ const JobDetail = () => {
         } else {
           throw new Error('Unsupported file type. Please upload PDF, DOC, DOCX, or TXT files.');
         }
-
-        
-        
-        // Update cover letter text area with extracted content
         setApplicationData(prev => ({
           ...prev,
           coverLetter: extractedText
         }));
-        
       } catch (err) {
         setApplicationError(`Error extracting text from cover letter: ${err.message}`);
       } finally {
@@ -162,48 +160,40 @@ const JobDetail = () => {
       console.error('No job data available');
       return;
     }
-  
     try {
-      console.log('Generating content:', type);
-      console.log('Job Data:', JSON.stringify(job, null, 2));
-  
       const setGenerating = type === 'coverLetter' 
         ? setGeneratingCoverLetter 
         : setGeneratingAdditionalNotes;
-      
       setGenerating(true);
+      
+      const token = getAuthToken();
       const requestData = {
         jobTitle: job.title,
         company: job.company,
         skills: job.skills || [],
         requirements: job.requirements || [],
-        type: 'coverLetter'
+        type: type
       };
-      
+
       const response = await fetch(`https://airuter-backend.onrender.com/api/applications/generate-content`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${Cookies.get('usertoken')}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(requestData)
-      });
-  
-      console.log('Response Status:', response.status);
+      });      
       
-      const responseData = await response.json();
-      console.log('Response Data:', responseData);
-  
+      const responseData = await response.json();  
       if (!response.ok) {
         throw new Error(responseData.message || `Failed to generate ${type}`);
       }
-      
+
       setApplicationData(prev => ({
         ...prev,
         [type]: responseData.generatedText
       }));
 
-      // Open fullscreen cover letter editor automatically when generated
       if (type === 'coverLetter') {
         setShowCoverLetterFullscreen(true);
       }
@@ -223,6 +213,7 @@ const JobDetail = () => {
     setSubmitting(true);
     setApplicationError('');
     setSubmissionStage('idle');
+
     if (resumeTab === 'upload' && !applicationData.resume) {
       setApplicationError('Please upload a resume or use your existing resume');
       setSubmitting(false);
@@ -242,30 +233,39 @@ const JobDetail = () => {
     }
 
     try {
+      const token = getAuthToken();
+      if (!token) {
+        throw new Error('Authentication required');
+      }
+
       setSubmissionStage('analyzing');
       await new Promise(resolve => setTimeout(resolve, 1500));
+      
       setSubmissionStage('uploading');
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       const formData = new FormData();
-      
       if (resumeTab === 'upload') {
         formData.append('resume', applicationData.resume);
       } else if (resumeTab === 'existing' && userProfile && userProfile.resumePath) {
-        const response = await fetch(`https://airuter-backend.onrender.com/api/profile${userProfile.resumePath}`);
+        const response = await fetch(`https://airuter-backend.onrender.com/api/profile${userProfile.resumePath}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
         const blob = await response.blob();
         const filename = userProfile.resumePath.split('/').pop();
         formData.append('resume', blob, filename);
       }
-      
+
       formData.append('coverLetter', applicationData.coverLetter);
       formData.append('additionalNotes', applicationData.additionalNotes);
+
       setSubmissionStage('processing');
-      
       const response = await fetch(`https://airuter-backend.onrender.com/api/applications/${jobId}`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${Cookies.get('usertoken')}`
+          'Authorization': `Bearer ${token}`
         },
         body: formData
       });
@@ -274,13 +274,15 @@ const JobDetail = () => {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Failed to submit application');
       }
+
       setSubmissionStage('saving');
       await new Promise(resolve => setTimeout(resolve, 1000));
+      
       setSubmissionStage('complete');
       await new Promise(resolve => setTimeout(resolve, 500));
+      
       setShowApplicationForm(false);
       alert('Application submitted successfully!');
-      navigate('/jobs');
     } catch (err) {
       setApplicationError(err.message);
       setSubmissionStage('idle');
@@ -316,7 +318,8 @@ const JobDetail = () => {
 
   const viewResume = () => {
     if (userProfile && userProfile.resumePath) {
-      window.open(`https://airuter-backend.onrender.com/api/profile${userProfile.resumePath}`, '_blank');
+      const token = getAuthToken();
+      window.open(`https://airuter-backend.onrender.com/api/profile${userProfile.resumePath}?token=${token}`, '_blank');
     }
   };
 
@@ -326,7 +329,6 @@ const JobDetail = () => {
 
   const CoverLetterFullscreenModal = () => {
     if (!showCoverLetterFullscreen) return null;
-    
     return (
       <div className={`fixed inset-0 z-50 flex items-center justify-center ${overlayBg}`}>
         <div className={`w-full max-w-5xl h-4/5 ${modalBg} rounded-xl shadow-2xl flex flex-col`}>
@@ -411,6 +413,7 @@ const JobDetail = () => {
           <ArrowLeft size={20} className="mr-2" />
           <span className="font-medium">Back to Jobs</span>
         </button>
+
         {job && (
           <div className="grid md:grid-cols-3 gap-8">
             <div className="md:col-span-2 space-y-8">
@@ -429,7 +432,6 @@ const JobDetail = () => {
                     </span>
                   </div>
                 </div>
-
                 <div className="p-6">
                   <div className={`grid grid-cols-1 md:grid-cols-3 gap-4 ${sectionBg} p-4 rounded-xl`}>
                     {[
@@ -476,6 +478,7 @@ const JobDetail = () => {
                   </div>
                 </div>
               </div>
+
               <div className={`${cardBg} rounded-2xl shadow-xl p-6`}>
                 <div className="grid md:grid-cols-2 gap-8">
                   <div>
@@ -508,6 +511,7 @@ const JobDetail = () => {
                   </div>
                 </div>
               </div>
+
               <div className={`${cardBg} rounded-2xl shadow-xl p-6`}>
                 <h2 className={`text-xl font-bold ${textColor} mb-4 flex items-center`}>
                   <DollarSign size={24} className="mr-2 text-purple-600" />
@@ -523,6 +527,7 @@ const JobDetail = () => {
                 </div>
               </div>
             </div>
+
             <div className="md:col-span-1 space-y-6">
               <div className={`${cardBg} rounded-2xl shadow-xl p-6`}>
                 <h3 className={`text-xl font-bold ${textColor} mb-4`}>Recruiter Contact</h3>
@@ -531,6 +536,7 @@ const JobDetail = () => {
                   <p className={subTextColor}><strong className={textColor}>Email:</strong> {job.recruiter.email}</p>
                 </div>
               </div>
+
               <div className={`${cardBg} rounded-2xl shadow-xl p-6`}>
                 {!showApplicationForm ? (
                   <button
@@ -590,6 +596,7 @@ const JobDetail = () => {
                           </button>
                         </div>
                       )}
+
                       {resumeTab === 'upload' && (
                         !applicationData.resume ? (
                           <div className="flex items-center justify-center w-full">
@@ -626,6 +633,7 @@ const JobDetail = () => {
                           </div>
                         )
                       )}
+
                       {resumeTab === 'existing' && userProfile && userProfile.resumePath && (
                         <div className={`flex flex-col space-y-4 ${uploadBg} p-4 rounded-xl`}>
                           <div className="flex items-center justify-between">
@@ -657,7 +665,7 @@ const JobDetail = () => {
                               className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300"
                               disabled={submitting}
                             />
-                                                        <label htmlFor="existingResume" className={`text-sm ${textColor}`}>
+                            <label htmlFor="existingResume" className={`text-sm ${textColor}`}>
                               Use this resume for application
                             </label>
                           </div>
@@ -666,92 +674,88 @@ const JobDetail = () => {
                     </div>
 
                     <div>
-  <div className="flex items-center justify-between mb-2">
-    <label className={`block text-sm font-semibold ${textColor}`}>
-      Cover Letter
-    </label>
-    <div className="flex items-center space-x-2">
-      <button
-        type="button"
-        onClick={() => generateContent('coverLetter')}
-        disabled={generatingCoverLetter || submitting || extractingCoverLetter}
-        className={`inline-flex items-center ${isDark ? 'text-purple-400 hover:text-purple-300' : 'text-purple-600 hover:text-purple-800'} text-sm`}
-      >
-        <Wand2 size={16} className="mr-1" />
-        {generatingCoverLetter ? 'Generating...' : 'Generate'}
-      </button>
-      {applicationData.coverLetter && (
-        <button
-          type="button"
-          onClick={toggleCoverLetterFullscreen}
-          className={`inline-flex items-center ${isDark ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-800'} text-sm`}
-          disabled={submitting}
-        >
-          <Maximize2 size={16} className="mr-1" />
-          Fullscreen
-        </button>
-      )}
-    </div>
-  </div>
-  
-  {/* Cover letter file upload section */}
-  <div className="mb-3">
-    {!coverLetterFile ? (
-      <div className="flex items-center justify-center w-full mb-3">
-        <label className={`w-full flex flex-col items-center px-4 py-3 ${uploadBg} ${uploadText} rounded-xl shadow-sm ${uploadBorder} border-2 border-dashed cursor-pointer ${uploadHoverBorder} ${uploadHoverBg} transition-all duration-200`}>
-          <Upload size={20} />
-          <span className="mt-2 text-xs text-center">
-            Upload cover letter file
-          </span>
-          <input
-            type="file"
-            className="hidden"
-            accept=".pdf,.doc,.docx,.txt"
-            onChange={handleCoverLetterFileChange}
-            disabled={submitting || extractingCoverLetter}
-          />
-        </label>
-      </div>
-    ) : (
-      <div className={`flex items-center justify-between ${uploadBg} p-3 rounded-xl mb-3`}>
-        <div className="flex items-center space-x-2">
-          <FileText size={24} className={uploadText} />
-          <span className={`text-sm truncate max-w-[200px] ${textColor}`}>
-            {coverLetterFile.name}
-          </span>
-        </div>
-        <button 
-          type="button"
-          onClick={removeCoverLetterFile}
-          className={`${isDark ? 'text-red-400 hover:bg-red-900' : 'text-red-500 hover:bg-red-50'} p-1 rounded-full`}
-          disabled={submitting || extractingCoverLetter}
-        >
-          <X size={16} />
-        </button>
-      </div>
-    )}
-    
-    {extractingCoverLetter && (
-      <div className="flex justify-center items-center py-2">
-        <div className="animate-spin rounded-full h-5 w-5 border-2 border-purple-500 border-t-transparent"></div>
-        <span className={`ml-2 text-sm ${subTextColor}`}>Extracting text...</span>
-      </div>
-    )}
-  </div>
-  
-  {/* Cover letter textarea */}
-  <textarea
-    value={applicationData.coverLetter}
-    onChange={(e) => setApplicationData(prev => ({
-      ...prev,
-      coverLetter: e.target.value
-    }))}
-    rows={6}
-    disabled={submitting || extractingCoverLetter}
-    className={`w-full rounded-xl ${inputBg} ${inputBorder} focus:border-purple-500 focus:ring-purple-500 transition-colors duration-200 ${disabledBg} ${disabledText} ${inputText}`}
-    placeholder="Write your cover letter here or upload a file above..."
-  />
-</div>
+                      <div className="flex items-center justify-between mb-2">
+                        <label className={`block text-sm font-semibold ${textColor}`}>
+                          Cover Letter
+                        </label>
+                        <div className="flex items-center space-x-2">
+                          <button
+                            type="button"
+                            onClick={() => generateContent('coverLetter')}
+                            disabled={generatingCoverLetter || submitting || extractingCoverLetter}
+                            className={`inline-flex items-center ${isDark ? 'text-purple-400 hover:text-purple-300' : 'text-purple-600 hover:text-purple-800'} text-sm`}
+                          >
+                            <Wand2 size={16} className="mr-1" />
+                            {generatingCoverLetter ? 'Generating...' : 'Generate'}
+                          </button>
+                          {applicationData.coverLetter && (
+                            <button
+                              type="button"
+                              onClick={toggleCoverLetterFullscreen}
+                              className={`inline-flex items-center ${isDark ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-800'} text-sm`}
+                              disabled={submitting}
+                            >
+                              <Maximize2 size={16} className="mr-1" />
+                              Fullscreen
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                      <div className="mb-3">
+                        {!coverLetterFile ? (
+                          <div className="flex items-center justify-center w-full mb-3">
+                            <label className={`w-full flex flex-col items-center px-4 py-3 ${uploadBg} ${uploadText} rounded-xl shadow-sm ${uploadBorder} border-2 border-dashed cursor-pointer ${uploadHoverBorder} ${uploadHoverBg} transition-all duration-200`}>
+                              <Upload size={20} />
+                              <span className="mt-2 text-xs text-center">
+                                Upload cover letter file
+                              </span>
+                              <input
+                                type="file"
+                                className="hidden"
+                                accept=".pdf,.doc,.docx,.txt"
+                                onChange={handleCoverLetterFileChange}
+                                disabled={submitting || extractingCoverLetter}
+                              />
+                            </label>
+                          </div>
+                        ) : (
+                          <div className={`flex items-center justify-between ${uploadBg} p-3 rounded-xl mb-3`}>
+                            <div className="flex items-center space-x-2">
+                              <FileText size={24} className={uploadText} />
+                              <span className={`text-sm truncate max-w-[200px] ${textColor}`}>
+                                {coverLetterFile.name}
+                              </span>
+                            </div>
+                            <button 
+                              type="button"
+                              onClick={removeCoverLetterFile}
+                              className={`${isDark ? 'text-red-400 hover:bg-red-900' : 'text-red-500 hover:bg-red-50'} p-1 rounded-full`}
+                              disabled={submitting || extractingCoverLetter}
+                            >
+                              <X size={16} />
+                            </button>
+                          </div>
+                        )}
+                        
+                        {extractingCoverLetter && (
+                          <div className="flex justify-center items-center py-2">
+                            <div className="animate-spin rounded-full h-5 w-5 border-2 border-purple-500 border-t-transparent"></div>
+                            <span className={`ml-2 text-sm ${subTextColor}`}>Extracting text...</span>
+                          </div>
+                        )}
+                      </div>
+                      <textarea
+                        value={applicationData.coverLetter}
+                        onChange={(e) => setApplicationData(prev => ({
+                          ...prev,
+                          coverLetter: e.target.value
+                        }))}
+                        rows={6}
+                        disabled={submitting || extractingCoverLetter}
+                        className={`w-full rounded-xl ${inputBg} ${inputBorder} focus:border-purple-500 focus:ring-purple-500 transition-colors duration-200 ${disabledBg} ${disabledText} ${inputText}`}
+                        placeholder="Write your cover letter here or upload a file above..."
+                      />
+                    </div>
 
                     <div>
                       <label className={`block text-sm font-semibold ${textColor} mb-2`}>
@@ -834,4 +838,5 @@ const JobDetail = () => {
     </div>
   );
 };
+
 export default JobDetail;

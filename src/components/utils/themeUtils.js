@@ -1,5 +1,5 @@
 // src/utils/themeUtils.js
-import { useTheme } from '../context/ThemeContext';
+import { useTheme } from '../../context/ThemeContext';
 
 /**
  * Returns theme-aware class names based on the current theme

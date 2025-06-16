@@ -1,9 +1,9 @@
-// Updated AdminMenu.js
+// Updated AdminMenu.js with Partners
 import React, { useState } from 'react';
 import { 
   Layout, Users, Database, BarChart3, Settings, FileText, 
   UserCog, CheckSquare, BookOpen, TicketIcon, CreditCard, 
-  Video, ChevronDown, ChevronRight, LineChart
+  Video, ChevronDown, ChevronRight, LineChart, Handshake
 } from 'lucide-react';
 
 const AdminMenu = ({ isExpanded, currentPath, handleNavigate, isDark }) => {
@@ -13,8 +13,9 @@ const AdminMenu = ({ isExpanded, currentPath, handleNavigate, isDark }) => {
 
   const menuItems = [
     { icon: Layout, label: 'Dashboard', path: '/admin/dashboard' },
-    { icon: Users, label: 'Recruiter', path: '/admin/clients' },
-    { icon: UserCog, label: 'User', path: '/admin/users' },
+    { icon: Users, label: 'Recruiters', path: '/admin/clients' },
+    { icon: Handshake, label: 'Partners', path: '/admin/partners' },
+    { icon: UserCog, label: 'Users', path: '/admin/users' },
     { icon: BarChart3, label: 'Analytics', path: '/admin/analytics' },
     { icon: CheckSquare, label: 'Approvals', path: '/admin/approvals' },
     { icon: TicketIcon, label: 'Tickets', path: '/admin/tickets' },

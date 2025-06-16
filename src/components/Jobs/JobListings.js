@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, MapPin, BriefcaseIcon, Filter, LayoutGrid, List, Clock } from 'lucide-react';
+import { Search, MapPin, BriefcaseIcon, Filter, LayoutGrid, List, Clock, Crown, Globe } from 'lucide-react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { useTheme } from '../../context/ThemeContext';
@@ -11,6 +11,7 @@ const JobListings = () => {
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState('card'); // card or table
+  const [accessInfo, setAccessInfo] = useState(null); // Store access information
   const [filters, setFilters] = useState({
     jobType: '',
     experience: '',
@@ -35,19 +36,56 @@ const JobListings = () => {
     return colorMap[jobType] || (isDark ? 'bg-gray-600 text-gray-100' : 'bg-gray-500 text-white');
   };
 
-  // Fetch jobs from API
+  // Enhanced fetch jobs function with better error handling and authentication
   const fetchJobs = async () => {
     try {
+      setLoading(true);
+      const token = Cookies.get('usertoken');
+      console.log(token)
+      
+      // Prepare headers - always include token if available
+      const headers = {
+        'Content-Type': 'application/json'
+      };
+      
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+        console.log('Making authenticated request with token');
+      } else {
+        console.log('Making unauthenticated request');
+      }
+
       const response = await fetch('https://airuter-backend.onrender.com/api/jobs', {
-        headers: {
-          'Authorization': `Bearer ${Cookies.get('usertoken')}`
-        }
+        method: 'GET',
+        headers: headers
       });
-      if (!response.ok) throw new Error('Failed to fetch jobs');
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch jobs: ${response.status} ${response.statusText}`);
+      }
+
       const data = await response.json();
-      // Fix: Extract the jobs array from the response object
+      console.log('API Response:', data);
+      
+      // Extract jobs array and access info from response
       setJobs(data.jobs || []);
+      setAccessInfo(data.accessInfo || null);
+      
+      // Log access information for debugging
+      if (data.accessInfo) {
+        console.log('Access Info:', {
+          isAuthenticated: data.accessInfo.isAuthenticated,
+          userType: data.accessInfo.userType,
+          isCandidate: data.accessInfo.isCandidate,
+          hasPartnerAccess: data.accessInfo.hasPartnerAccess,
+          partnerName: data.accessInfo.partnerName,
+          jobsShown: data.accessInfo.jobsShown,
+          totalAvailable: data.accessInfo.totalAvailable
+        });
+      }
+      
     } catch (err) {
+      console.error('Error fetching jobs:', err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -130,6 +168,19 @@ const JobListings = () => {
     );
   };
 
+  // Function to render premium indicator for private jobs
+  const renderPremiumIndicator = (job) => {
+    if (job.visibility === 'private') {
+      return (
+        <div className="flex items-center">
+          <Crown size={12} className="mr-1 text-yellow-500" />
+          <span className="text-xs font-medium text-yellow-600 dark:text-yellow-400">Premium</span>
+        </div>
+      );
+    }
+    return null;
+  };
+
   // Enhanced skill badge style based on skill content
   const getSkillBadgeStyle = (skill) => {
     const baseStyle = isDark ? 
@@ -183,9 +234,34 @@ const JobListings = () => {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
           <div>
             <h1 className={`text-3xl font-bold ${colors.text} mb-2`}>Discover Your Next Career</h1>
-            <p className={`${colors.textSecondary}`}>
-              {filteredJobs.length} opportunities matching your criteria
-            </p>
+            <div className="flex flex-col gap-1">
+              <p className={`${colors.textSecondary}`}>
+                {filteredJobs.length} opportunities matching your criteria
+              </p>
+              
+              {/* Enhanced Access Information Display */}
+              {accessInfo && (
+                <div className="flex items-center gap-4 text-sm">
+                  <div className={`flex items-center gap-1 ${colors.textMuted}`}>
+                    <span>Access Level:</span>
+                    {accessInfo.isAuthenticated ? (
+                      <span className={`font-medium ${accessInfo.hasPartnerAccess ? 'text-purple-600 dark:text-purple-400' : 'text-blue-600 dark:text-blue-400'}`}>
+                        {accessInfo.hasPartnerAccess ? `Partner (${accessInfo.partnerName})` : 'Standard'}
+                      </span>
+                    ) : (
+                      <span className="font-medium text-gray-600 dark:text-gray-400">Guest</span>
+                    )}
+                  </div>
+                  
+                  {accessInfo.hasPartnerAccess && (
+                    <div className={`flex items-center gap-1 ${colors.textMuted}`}>
+                      <Crown size={14} className="text-yellow-500" />
+                      <span>Including premium jobs</span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
           
           {/* View toggle buttons */}
@@ -311,10 +387,18 @@ const JobListings = () => {
                 <div
                   key={job._id}
                   onClick={() => handleJobClick(job._id)}
-                  className={`${colors.bgCard} rounded-xl ${isDark ? 'shadow-md shadow-gray-900/30 hover:shadow-lg hover:shadow-purple-900/20' : 'shadow-md hover:shadow-lg'} transition-all duration-300 cursor-pointer hover:-translate-y-1 overflow-hidden group`}
+                  className={`${colors.bgCard} rounded-xl ${isDark ? 'shadow-md shadow-gray-900/30 hover:shadow-lg hover:shadow-purple-900/20' : 'shadow-md hover:shadow-lg'} transition-all duration-300 cursor-pointer hover:-translate-y-1 overflow-hidden group relative`}
                 >
+                  {/* Premium strip for private jobs */}
+                  {job.visibility === 'private' && (
+                    <div className="absolute top-0 right-0 bg-gradient-to-l from-yellow-400 to-yellow-500 text-black text-xs font-bold px-3 py-1 rounded-bl-lg">
+                      <Crown size={12} className="inline mr-1" />
+                      PREMIUM
+                    </div>
+                  )}
+                  
                   {/* Top colored strip based on job type */}
-                  <div className={`h-1.5 w-full ${getJobTypeColor(job.type).split(' ')[0]}`}></div>
+                  <div className={`h-1.5 w-full ${job.visibility === 'private' ? 'bg-gradient-to-r from-yellow-400 to-yellow-500' : getJobTypeColor(job.type).split(' ')[0]}`}></div>
                   
                   <div className="p-5">
                     {/* Header with company logo and posting time */}
@@ -326,11 +410,14 @@ const JobListings = () => {
                           <p className={`text-sm ${colors.textSecondary} truncate`}>{job.company}</p>
                         </div>
                       </div>
-                      <div className="flex items-center">
-                        <Clock size={14} className="mr-1 text-gray-400" />
-                        <span className={`text-xs ${colors.textMuted}`}>
-                          {getTimeSincePosting(job.createdAt)}
-                        </span>
+                      <div className="flex flex-col items-end">
+                        <div className="flex items-center mb-1">
+                          <Clock size={14} className="mr-1 text-gray-400" />
+                          <span className={`text-xs ${colors.textMuted}`}>
+                            {getTimeSincePosting(job.createdAt)}
+                          </span>
+                        </div>
+                        {renderPremiumIndicator(job)}
                       </div>
                     </div>
 
@@ -346,7 +433,7 @@ const JobListings = () => {
                       </div>
                       
                       {/* Job type badge */}
-                      <div className="pt-1">
+                      <div className="pt-1 flex justify-between items-center">
                         <span className={`inline-block px-3 py-1 text-xs font-medium rounded-md ${getJobTypeColor(job.type)}`}>
                           {job.type}
                         </span>
@@ -403,7 +490,7 @@ const JobListings = () => {
                     <th scope="col" className={`px-6 py-4 text-left text-xs font-medium ${colors.text} uppercase tracking-wide`}>Location</th>
                     <th scope="col" className={`px-6 py-4 text-left text-xs font-medium ${colors.text} uppercase tracking-wider hidden md:table-cell`}>Experience</th>
                     <th scope="col" className={`px-6 py-4 text-left text-xs font-medium ${colors.text} uppercase tracking-wider hidden sm:table-cell`}>Type</th>
-                    <th scope="col" className={`px-6 py-4 text-left text-xs font-medium ${colors.text} uppercase tracking-wider hidden lg:table-cell`}>Skills</th>
+                    <th scope="col" className={`px-6 py-4 text-left text-xs font-medium ${colors.text} uppercase tracking-wider hidden lg:table-cell`}>Access</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -412,60 +499,66 @@ const JobListings = () => {
                       key={job._id} 
                       onClick={() => handleJobClick(job._id)}
                       className={`${idx % 2 === 0 ? (isDark ? 'bg-gray-800' : 'bg-white') : (isDark ? 'bg-gray-750' : 'bg-gray-50')}
-                        ${isDark ? 'hover:bg-gray-700' : 'hover:bg-purple-50'} cursor-pointer transition-colors`}
+                        ${isDark ? 'hover:bg-gray-700' : 'hover:bg-purple-50'} cursor-pointer transition-colors relative`}
                     >
-                      <td className={`px-6 py-4 ${colors.text}`}>
-                        <div className="font-medium">{job.title}</div>
+                      {/* Premium indicator strip for table rows */}
+                      {job.visibility === 'private' && (
+                        <td className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-yellow-400 to-yellow-500"></td>
+                      )}
+                      
+                      <td className={`px-6 py-4 ${colors.text} ${job.visibility === 'private' ? 'pl-8' : ''}`}>
+                        <div className="flex items-center">
+                          <div className="font-medium">{job.title}</div>
+                          {job.visibility === 'private' && (
+                            <Crown size={14} className="ml-2 text-yellow-500" />
+                          )}
+                        </div>
                         <div className="text-xs text-gray-500 mt-1">
                           {getTimeSincePosting(job.createdAt)}
                         </div>
                       </td>
-                      <td className="px-6 py-4 ">
+                      <td className={`px-6 py-4 ${job.visibility === 'private' ? 'pl-8' : ''}`}>
                         <div className="flex items-center">
                           {renderCompanyLogo(job)}
                           <span className={`ml-2 ${colors.textSecondary}`}>{job.company}</span>
                         </div>
                       </td>
-                      <td className={`px-6 py-4 ${colors.textSecondary}`}>
+                      <td className={`px-6 py-4 ${colors.textSecondary} ${job.visibility === 'private' ? 'pl-8' : ''}`}>
                         <div className="flex items-center">
                           <MapPin size={16} className="mr-1.5 text-gray-400" />
                           {job.location}
                         </div>
                       </td>
-                      <td className={`px-6 py-4 w-1/6 ${colors.textSecondary} hidden md:table-cell`}>
+                      <td className={`px-6 py-4 w-1/6 ${colors.textSecondary} hidden md:table-cell ${job.visibility === 'private' ? 'pl-8' : ''}`}>
                         <div className="flex items-center">
                           <BriefcaseIcon size={16} className="mr-1.5 text-gray-400" />
                           {job.experience.min}-{job.experience.max} years
                         </div>
                       </td>
-                      <td className="px-6 py-4 w-1/6 hidden sm:table-cell">
-                        <span className={`px-2 py-1 text-xs font-medium rounded-md ${getJobTypeColor(job.type)}`}>
+                      <td className={`px-6 py-4 w-1/6 hidden sm:table-cell ${job.visibility === 'private' ? 'pl-8' : ''}`}>
+                        <span className={`inline-block px-2 py-1 text-xs font-medium rounded-md ${getJobTypeColor(job.type)}`}>
                           {job.type}
                         </span>
                       </td>
-                      <td className="px-6 py-4 hidden lg:table-cell">
-                        <div className="flex flex-wrap gap-2">
-                          {job.skills.slice(0, 2).map((skill, index) => (
-                            <span
-                              key={index}
-                              className={getSkillBadgeStyle(skill)}
-                            >
-                              {skill}
-                            </span>
-                          ))}
-                          {job.skills.length > 2 && (
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${isDark ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-700'}`}>
-                              +{job.skills.length - 2}
-                            </span>
-                          )}
-                        </div>
+                      <td className={`px-6 py-4 hidden lg:table-cell ${job.visibility === 'private' ? 'pl-8' : ''}`}>
+                        {job.visibility === 'private' ? (
+                          <div className="flex items-center">
+                            <Crown size={14} className="mr-1.5 text-yellow-500" />
+                            <span className="text-xs font-medium text-yellow-600 dark:text-yellow-400">Premium</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center">
+                            <Globe size={14} className="mr-1.5 text-green-500" />
+                            <span className="text-xs text-green-600 dark:text-green-400">Standard</span>
+                          </div>
+                        )}
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
               
-              {/* Pagination controls - enhanced for better UX */}
+              {/* Pagination controls */}
               <div className={`px-6 py-4 ${isDark ? 'bg-gray-800 border-t border-gray-700' : 'bg-white border-t border-gray-200'}`}>
                 <div className="flex items-center justify-between">
                   <div className={`text-sm ${colors.textSecondary}`}>

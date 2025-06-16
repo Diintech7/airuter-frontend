@@ -1,17 +1,20 @@
 import React from 'react';
-import { Home, Briefcase, Users, FileText, MessageSquare, Database } from 'lucide-react';
+import { Home, Briefcase, Users, Calendar, BookOpen, User, HelpCircle, Settings } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 
-const RecruiterMenu = ({ isExpanded, currentPath, handleNavigate }) => {
+const PartnerMenu = ({ isExpanded, currentPath, handleNavigate }) => {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
   const menuItems = [
-    { icon: Home, label: 'Dashboard', path: '/dashboard' },
-    { icon: FileText, label: 'My Job Listings', path: '/my-listings' },
-    { icon: Users, label: 'Candidates', path: '/candidates' },
-    { icon: MessageSquare, label: 'Chat', path: '/chat' },
-    { icon: Database, label: 'Datastore', path: '/datastore' },
+    { icon: Home, label: 'Overview', path: '/partner/overview' },
+    { icon: Briefcase, label: 'Job Listings', path: '/partner/job-listings' },
+    { icon: Users, label: 'Candidate Access', path: '/partner/candidate-access' },
+    { icon: Calendar, label: 'Interviews', path: '/partner/interviews' },
+    { icon: BookOpen, label: 'Courses', path: '/partner/courses' },
+    { icon: User, label: 'Account', path: '/partner/account' },
+    { icon: HelpCircle, label: 'Help', path: '/partner/help' },
+    { icon: Settings, label: 'Settings', path: '/partner/settings' },
   ];
 
   return (
@@ -29,8 +32,8 @@ const RecruiterMenu = ({ isExpanded, currentPath, handleNavigate }) => {
               transition-colors duration-200
               ${isActive
                 ? isDark 
-                  ? 'bg-purple-900/20 border-r-4 border-purple-500 text-purple-400'
-                  : 'bg-purple-50 border-r-4 border-purple-600 text-purple-600'
+                  ? 'bg-blue-900/20 border-r-4 border-blue-500 text-blue-400'
+                  : 'bg-blue-50 border-r-4 border-blue-600 text-blue-600'
                 : isDark
                   ? 'text-gray-300 hover:bg-gray-700/50'
                   : 'text-gray-600 hover:bg-gray-50'
@@ -50,4 +53,4 @@ const RecruiterMenu = ({ isExpanded, currentPath, handleNavigate }) => {
   );
 };
 
-export default RecruiterMenu;
+export default PartnerMenu;

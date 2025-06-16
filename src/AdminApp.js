@@ -21,6 +21,9 @@ import RecruiterApplicationsView from './components/Admin/RecruiterApplicationsV
 import JobDetail from './components/Jobs/JobDetail';
 import JobApplicationsContent from './components/Applications/JobApplicationsContent';
 import LandingPage from './LandingPage';
+import AdminPartnersPage from './components/Admin/PartnerManagement'; 
+import PrivateJobsPage from './components/Admin/PrivateJobsPage';
+import PartnerDetailsPage from './components/Admin/PartnerDetailsPage';
 
 const AdminApp = () => {
   const { theme } = useTheme();
@@ -108,11 +111,15 @@ const AdminApp = () => {
             <Route path='/courses' element={<Courses />} />
             <Route path='/payments' element={<Payments />} />
             <Route path='/shorts' element={<Shorts />} />
+            <Route path='/partners' element={<AdminPartnersPage />} />
             <Route path='/shorts/analytics' element={<ShortsAnalytics />} />
             <Route path="/recruiter/:recruiterId/jobs" element={<RecruiterJobsView />} />
             <Route path="/recruiter/:recruiterId/applications" element={<RecruiterApplicationsView />} />
             <Route path="/jobs/:jobId" element={<JobDetail />} />
             <Route path="/applications/:applicationId" element={<JobApplicationsContent />} />
+            <Route path="/partners/:partnerId/private-jobs" element={<PrivateJobsPage />} />
+            <Route path="/partners/:partnerId" element={<PartnerDetailsPage />} />
+
           </Route>
         ) : (
           <Route path="*" element={<Navigate to="/admin/login" replace />} />

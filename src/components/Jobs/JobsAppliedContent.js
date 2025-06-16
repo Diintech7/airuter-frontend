@@ -40,6 +40,7 @@ const JobsAppliedContent = () => {
   useEffect(() => {
     fetchApplications();
   }, []);
+  
 
   const fetchApplications = async () => {
     try {

@@ -1,210 +1,203 @@
-import React from 'react';
-
 const InterviewWebSockets = {
   setupWebSockets: (webSocketRef, speechWebSocketRef, setIsSpeechWebSocketReady, setTranscript, setUserResponse) => {
-    console.log('Setting up WebSocket connections...');
+    console.log("Setting up WebSocket connections...")
 
-    webSocketRef.current = new WebSocket(`wss://airuter-backend.onrender.com/ws/transcribe?language=en`);
+    // Setup transcription WebSocket
+    webSocketRef.current = new WebSocket(`wss://airuter-backend.onrender.com/ws/transcribe?language=en`)
 
     webSocketRef.current.onopen = () => {
-      console.log('Transcription WebSocket connected');
-    };
+      console.log("Transcription WebSocket connected")
+    }
 
-// Enhanced version with better phrase deduplication for InterviewWebSockets.js
-webSocketRef.current.onmessage = (event) => {
-  const data = JSON.parse(event.data);
-  if (data.type === 'transcript' && data.data.trim()) {
-    console.log('Received transcript:', data.data);
-    
-    // Set the current transcript for immediate display
-    setTranscript(data.data);
-    
-    // For the full response, use a more advanced deduplication approach
-    setUserResponse(prevResponse => {
-      // If this is a completely new segment or the first response
-      if (prevResponse.trim() === '') {
-        return data.data;
-      }
-      
-      // Advanced deduplication logic
-      let newText = prevResponse;
-      const incomingText = data.data;
-      
-      // Function to find the largest repeating phrase
-      const findRepeatedPhrases = (text, minLength = 3) => {
-        const words = text.toLowerCase().split(' ');
-        const phrases = [];
-        
-        // Look for phrases of different lengths
-        for (let phraseLength = minLength; phraseLength <= Math.floor(words.length / 2); phraseLength++) {
-          // Check each possible starting position
-          for (let i = 0; i <= words.length - 2 * phraseLength; i++) {
-            const phrase1 = words.slice(i, i + phraseLength).join(' ');
-            
-            // Check if this phrase repeats later in the text
-            for (let j = i + phraseLength; j <= words.length - phraseLength; j++) {
-              const phrase2 = words.slice(j, j + phraseLength).join(' ');
-              
-              if (phrase1 === phrase2) {
-                phrases.push({
-                  phrase: phrase1,
-                  length: phraseLength,
-                  firstPos: i,
-                  secondPos: j
-                });
-              }
+    // Enhanced version with better phrase deduplication and faster processing
+    webSocketRef.current.onmessage = (event) => {
+      const data = JSON.parse(event.data)
+      if (data.type === "transcript" && data.data.trim()) {
+        console.log("Received transcript:", data.data)
+
+        // Set the current transcript for immediate display
+        setTranscript(data.data)
+
+        // For the full response, use optimized deduplication
+        setUserResponse((prevResponse) => {
+          if (prevResponse.trim() === "") {
+            return data.data
+          }
+
+          // Faster deduplication logic
+          const newText = prevResponse
+          const incomingText = data.data
+
+          // Simple overlap matching for better performance
+          const prevWords = prevResponse.split(" ")
+          const incomingWords = incomingText.split(" ")
+
+          // Reduced overlap check for faster processing
+          const maxOverlap = Math.min(5, prevWords.length, incomingWords.length)
+          let bestOverlapSize = 0
+
+          for (let i = 1; i <= maxOverlap; i++) {
+            const lastWordsOfPrev = prevWords.slice(-i).join(" ").toLowerCase()
+            const firstWordsOfIncoming = incomingWords.slice(0, i).join(" ").toLowerCase()
+
+            if (lastWordsOfPrev === firstWordsOfIncoming) {
+              bestOverlapSize = i
             }
           }
-        }
-        
-        // Sort by phrase length (prefer longer phrases)
-        return phrases.sort((a, b) => b.length - a.length);
-      };
-      
-      // Process the combined text to identify and remove repetitions
-      const combined = prevResponse + ' ' + incomingText;
-      const repeatedPhrases = findRepeatedPhrases(combined);
-      
-      if (repeatedPhrases.length > 0) {
-        // We found repeating phrases, let's clean them up
-        const combinedWords = combined.split(' ');
-        const topPhrase = repeatedPhrases[0]; // Take the longest repeating phrase
-        
-        // Create a new array without the second occurrence of the phrase
-        const cleanedWords = [
-          ...combinedWords.slice(0, topPhrase.secondPos),
-          ...combinedWords.slice(topPhrase.secondPos + topPhrase.length)
-        ];
-        
-        return cleanedWords.join(' ');
-      } else {
-        // No significant repetition found, try simple overlap matching
-        const prevWords = prevResponse.split(' ');
-        const incomingWords = incomingText.split(' ');
-        
-        // Look for potential overlap of up to 10 words
-        let maxOverlap = Math.min(10, prevWords.length, incomingWords.length);
-        let bestOverlapSize = 0;
-        
-        // Find the largest overlapping segment
-        for (let i = 1; i <= maxOverlap; i++) {
-          const lastWordsOfPrev = prevWords.slice(-i).join(' ').toLowerCase();
-          const firstWordsOfIncoming = incomingWords.slice(0, i).join(' ').toLowerCase();
-          
-          if (lastWordsOfPrev === firstWordsOfIncoming) {
-            bestOverlapSize = i;
+
+          if (bestOverlapSize > 0) {
+            return prevResponse + " " + incomingWords.slice(bestOverlapSize).join(" ")
+          } else {
+            return prevResponse + " " + incomingText
           }
-        }
-        
-        // If we found a significant overlap, only add the non-overlapping part
-        if (bestOverlapSize > 0) {
-          return prevResponse + ' ' + incomingWords.slice(bestOverlapSize).join(' ');
-        } else {
-          // No overlap found, simply concatenate with appropriate spacing
-          return prevResponse + ' ' + incomingText;
-        }
+        })
       }
-    });
-  }
-};
+    }
 
     webSocketRef.current.onerror = (error) => {
-      console.error('Transcription WebSocket error:', error);
-    };
+      console.error("Transcription WebSocket error:", error)
+    }
 
     webSocketRef.current.onclose = () => {
-      console.log('Transcription WebSocket closed');
-    };
+      console.log("Transcription WebSocket closed")
+    }
 
-    speechWebSocketRef.current = new WebSocket('wss://airuter-backend.onrender.com/ws/speech');
+    // Setup speech synthesis WebSocket
+    speechWebSocketRef.current = new WebSocket("wss://airuter-backend.onrender.com/ws/speech")
 
     speechWebSocketRef.current.onopen = () => {
-      console.log('Speech WebSocket connected');
-      setIsSpeechWebSocketReady(true);
-    };
+      console.log("Speech WebSocket connected")
+      setIsSpeechWebSocketReady(true)
+    }
 
     speechWebSocketRef.current.onerror = (error) => {
-      console.error('Speech WebSocket error:', error);
-      setIsSpeechWebSocketReady(false);
-    };
+      console.error("Speech WebSocket error:", error)
+      setIsSpeechWebSocketReady(false)
+    }
 
     speechWebSocketRef.current.onclose = () => {
-      console.log('Speech WebSocket closed');
-      setIsSpeechWebSocketReady(false);
-    };
+      console.log("Speech WebSocket closed")
+      setIsSpeechWebSocketReady(false)
+    }
   },
 
-  speakQuestion: (question, speechWebSocketRef, audioPlayerRef, setIsSpeaking, setAiSpeaking, isRecording, startRecording) => {
-    if (!speechWebSocketRef.current || speechWebSocketRef.current.readyState !== WebSocket.OPEN) {
-      console.error('Speech WebSocket not ready');
-      return;
-    }
-
-    console.log('Sending question to LMNT for synthesis:', question);
-    setIsSpeaking(true);
-    setAiSpeaking(true);
-
-    if (audioPlayerRef.current) {
-      audioPlayerRef.current.pause();
-      audioPlayerRef.current.src = '';
-    }
-    const audioChunks = [];
-
-    speechWebSocketRef.current.send(JSON.stringify({
-      text: question,
-      voice: 'lily',
-      language: 'en',
-      speed: 1.0
-    }));
-
-    speechWebSocketRef.current.onmessage = (event) => {
-      if (typeof event.data === 'string') {
-        const data = JSON.parse(event.data);
-        if (data.type === 'end') {
-          console.log('Speech synthesis complete');
-
-          const combinedBlob = new Blob(audioChunks, { type: 'audio/mp3' });
-          const url = URL.createObjectURL(combinedBlob);
-
-          audioPlayerRef.current.src = url;
-          audioPlayerRef.current.play().then(() => {
-            console.log('Audio playback started');
-          }).catch((error) => {
-            console.error('Error playing audio:', error);
-          });
-
-          setIsSpeaking(false);
-          setAiSpeaking(false);
-
-          setTimeout(() => {
-            if (!isRecording) {
-              startRecording();
-            }
-          }, 1000);
-        } else if (data.type === 'error') {
-          console.error('Speech synthesis error:', data.error);
-          setIsSpeaking(false);
-          setAiSpeaking(false);
-        }
-      } else {
-        console.log('Received audio chunk:', event.data);
-        audioChunks.push(event.data); 
-      }
-    };
-  },
-
-  waitForWebSocket: (speechWebSocketRef) => {
-    return new Promise((resolve) => {
+  waitForWebSocket: (speechWebSocketRef, timeout = 2500) => {
+    // Reduced timeout for faster processing
+    return new Promise((resolve, reject) => {
+      const startTime = Date.now()
       const checkWebSocket = () => {
         if (speechWebSocketRef.current && speechWebSocketRef.current.readyState === WebSocket.OPEN) {
-          resolve();
+          resolve()
+        } else if (Date.now() - startTime > timeout) {
+          reject(new Error("WebSocket connection timeout"))
         } else {
-          setTimeout(checkWebSocket, 100);
+          setTimeout(checkWebSocket, 25) // Faster checking interval
         }
-      };
-      checkWebSocket();
-    });
-  }
-};
+      }
+      checkWebSocket()
+    })
+  },
 
-export default InterviewWebSockets; 
+  speakQuestion: (
+    question,
+    speechWebSocketRef,
+    audioPlayerRef,
+    setIsSpeaking,
+    setAiSpeaking,
+    isRecording,
+    startRecording,
+  ) => {
+    if (!speechWebSocketRef.current || speechWebSocketRef.current.readyState !== WebSocket.OPEN) {
+      console.error("Speech WebSocket not ready, retrying in 500ms...")
+      setTimeout(() => {
+        InterviewWebSockets.speakQuestion(
+          question,
+          speechWebSocketRef,
+          audioPlayerRef,
+          setIsSpeaking,
+          setAiSpeaking,
+          isRecording,
+          startRecording,
+        )
+      }, 500) // Reduced retry delay
+      return
+    }
+
+    console.log("Sending question to LMNT for synthesis:", question)
+    setIsSpeaking(true)
+    setAiSpeaking(true)
+
+    if (audioPlayerRef.current) {
+      audioPlayerRef.current.pause()
+      audioPlayerRef.current.src = ""
+    }
+
+    const audioChunks = []
+    const startTime = Date.now()
+
+    // Reduced timeout for faster processing
+    const timeoutId = setTimeout(() => {
+      console.warn("Speech synthesis timeout, proceeding anyway")
+      setIsSpeaking(false)
+      setAiSpeaking(false)
+      if (!isRecording) {
+        startRecording()
+      }
+    }, 10000) // Reduced from 15000
+
+    speechWebSocketRef.current.send(
+      JSON.stringify({
+        text: question,
+        voice: "lily",
+        language: "en",
+        speed: 1.2, // Slightly faster speech for smoother experience
+      }),
+    )
+
+    speechWebSocketRef.current.onmessage = (event) => {
+      if (typeof event.data === "string") {
+        const data = JSON.parse(event.data)
+        if (data.type === "end") {
+          clearTimeout(timeoutId)
+          console.log(`Speech synthesis complete in ${Date.now() - startTime}ms`)
+
+          const combinedBlob = new Blob(audioChunks, { type: "audio/mp3" })
+          const url = URL.createObjectURL(combinedBlob)
+
+          audioPlayerRef.current.src = url
+          audioPlayerRef.current
+            .play()
+            .then(() => {
+              console.log("Audio playback started")
+            })
+            .catch((error) => {
+              console.error("Error playing audio:", error)
+            })
+
+          setIsSpeaking(false)
+          setAiSpeaking(false)
+
+          // Start recording immediately after speech ends
+          setTimeout(() => {
+            if (!isRecording) {
+              startRecording()
+            }
+          }, 300) // Reduced delay for smoother transition
+        } else if (data.type === "error") {
+          clearTimeout(timeoutId)
+          console.error("Speech synthesis error:", data.error)
+          setIsSpeaking(false)
+          setAiSpeaking(false)
+          // Start recording even if speech fails
+          if (!isRecording) {
+            startRecording()
+          }
+        }
+      } else {
+        audioChunks.push(event.data)
+      }
+    }
+  },
+}
+
+export default InterviewWebSockets

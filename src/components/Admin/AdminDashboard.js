@@ -45,14 +45,7 @@ const AdminDashboard = () => {
           'Authorization': `Bearer ${token}`
         },
       });
-
-      // If unauthorized, redirect to login
-      if (response.status === 401 || response.status === 403) {
-        Cookies.remove('admintoken');
-        Cookies.remove('adminUser');
-        navigate('/admin/login');
-        return;
-      }
+      console.log(token)
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);

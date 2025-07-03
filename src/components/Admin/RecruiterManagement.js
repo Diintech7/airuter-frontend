@@ -17,7 +17,8 @@ const RecruiterManagement = () => {
   const [currentRecruiter, setCurrentRecruiter] = useState(null)
   const [showDetailView, setShowDetailView] = useState(false)
   const navigate = useNavigate()
-  const [impersonating, setImpersonating] = useState(false)
+  // Changed: Track specific recruiter being impersonated instead of boolean
+  const [impersonatingId, setImpersonatingId] = useState(null)
 
   // New filter states
   const [showFilters, setShowFilters] = useState(false)
@@ -107,10 +108,10 @@ const RecruiterManagement = () => {
     }
   }
 
-  // Fixed login as recruiter function
+  // Fixed login as recruiter function - now sets specific recruiter ID
   const handleLoginAsRecruiter = async (recruiterId) => {
     try {
-      setImpersonating(true)
+      setImpersonatingId(recruiterId) // Set the specific recruiter ID
       const adminToken = Cookies.get("admintoken")
 
       console.log("Attempting to login as recruiter:", recruiterId)
@@ -162,7 +163,7 @@ const RecruiterManagement = () => {
       console.error("Error during recruiter login:", error)
       toast.error(error.response?.data?.message || "Failed to login as recruiter")
     } finally {
-      setImpersonating(false)
+      setImpersonatingId(null) // Reset to null
     }
   }
 
@@ -600,9 +601,9 @@ const RecruiterManagement = () => {
                             className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-blue-600"
                             onClick={() => handleLoginAsRecruiter(recruiter._id)}
                             title="Login as Recruiter"
-                            disabled={impersonating}
+                            disabled={impersonatingId === recruiter._id}
                           >
-                            {impersonating ? (
+                            {impersonatingId === recruiter._id ? (
                               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
                             ) : (
                               <LogIn className="h-4 w-4" />

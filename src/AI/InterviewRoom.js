@@ -11,12 +11,16 @@ import InterviewAnalysis from "./components/InterviewAnalysis"
 import InterviewMediaControls from "./components/InterviewMediaControls"
 import InterviewWebSockets from "./components/InterviewWebSockets"
 import EnhancedLoadingAnimation from "./components/EnhancedLoadingAnimation"
+import { getInterviewQuestions, getVoiceConfig, getSynthesisOptions } from "./utils/languageUtils"
 
 Chart.register(...registerables)
 
 const InterviewRoom = () => {
   const { roomId } = useParams()
   const navigate = useNavigate()
+
+  // Language state
+  const [selectedLanguage, setSelectedLanguage] = useState("en")
 
   // Question management state
   const [questions, setQuestions] = useState([])
@@ -41,7 +45,7 @@ const InterviewRoom = () => {
   const [interviewStarted, setInterviewStarted] = useState(false)
   const [permissionsGranted, setPermissionsGranted] = useState(false)
   const [isFullScreen, setIsFullScreen] = useState(false)
-  const [remainingTime, setRemainingTime] = useState(90) // Reduced from 120
+  const [remainingTime, setRemainingTime] = useState(90)
   const [timerActive, setTimerActive] = useState(false)
   const [isSpeechWebSocketReady, setIsSpeechWebSocketReady] = useState(false)
   const [isScreenRecording, setIsScreenRecording] = useState(false)
@@ -66,13 +70,6 @@ const InterviewRoom = () => {
   const isConnected = useHMSStore(selectIsConnectedToRoom)
   const localPeer = useHMSStore(selectLocalPeer)
   const peers = useHMSStore(selectPeers)
-
-  // Basic questions that will always be asked first
-  const BASIC_QUESTIONS = [
-    "Tell me about yourself and your background.",
-    "What are your key strengths and how do they relate to this role?",
-    "Describe a challenging project you've worked on recently.",
-  ]
 
   const startScreenRecording = async () => {
     try {
@@ -202,14 +199,15 @@ const InterviewRoom = () => {
     }
   }, [permissionsGranted])
 
-  const startInterview = async () => {
-    console.log("Starting interview...")
+  const startInterview = async (language = "en") => {
+    console.log(`Starting interview in ${language}...`)
+    setSelectedLanguage(language)
+
     const devicesAvailable = await InterviewMediaControls.checkDeviceAvailability()
     if (!devicesAvailable) return
 
     setInterviewStarted(true)
 
-    // Reduced delay for faster start
     setTimeout(async () => {
       const hasPermissions = await InterviewMediaControls.requestPermissions(localVideoRef)
       if (!hasPermissions) {
@@ -219,7 +217,6 @@ const InterviewRoom = () => {
 
       setPermissionsGranted(true)
 
-      // Make screen recording mandatory - interview won't start without it
       console.log("Requesting screen sharing permissions...")
       try {
         const screenStream = await startScreenRecording()
@@ -242,10 +239,10 @@ const InterviewRoom = () => {
         setIsSpeechWebSocketReady,
         setTranscript,
         setUserResponse,
+        language,
       )
 
-      // Initialize with basic questions only after screen sharing is confirmed
-      await initializeBasicQuestions()
+      await initializeBasicQuestions(language)
       toggleFullScreen()
     }, 500)
   }
@@ -254,18 +251,18 @@ const InterviewRoom = () => {
     InterviewMediaControls.toggleFullScreen(containerRef, setIsFullScreen)
   }
 
-  const initializeBasicQuestions = async () => {
+  const initializeBasicQuestions = async (language) => {
     try {
-      console.log("Initializing basic questions...")
-      setQuestions(BASIC_QUESTIONS)
+      console.log(`Initializing basic questions in ${language}...`)
+      const basicQuestions = getInterviewQuestions(language)
+      setQuestions(basicQuestions)
       setResponses(new Array(6).fill(""))
       setInterviewPhase("basic")
       setCurrentQuestionIndex(0)
 
-      // Start speaking question faster
       setTimeout(() => {
-        speakQuestion(BASIC_QUESTIONS[0])
-      }, 1000) // Reduced from 2000
+        speakQuestion(basicQuestions[0])
+      }, 1000)
     } catch (error) {
       console.error("Error initializing basic questions:", error)
     }
@@ -284,15 +281,15 @@ const InterviewRoom = () => {
         }))
         .filter((qa) => qa.question && qa.answer)
 
-      // Faster timeout for question generation
       const response = await Promise.race([
         axios.post(`https://airuter-backend.onrender.com/api/interview/generate-adaptive-question`, {
           roomId,
           previousQA,
           document: interviewDocument,
           questionNumber: adaptiveQuestionsCompleted + 1,
+          language: selectedLanguage, // Add this line
         }),
-        new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 6000)), // Reduced from 8000
+        new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 6000)),
       ])
 
       const nextQuestion = response.data.question
@@ -302,12 +299,24 @@ const InterviewRoom = () => {
       return nextQuestion
     } catch (error) {
       console.error("Error generating adaptive question:", error)
-      const fallbackQuestions = [
-        "Based on your experience, how would you handle a situation where you need to learn a new technology quickly?",
-        "Can you elaborate on the technical challenges you mentioned and how you overcame them?",
-        "What would you say is your most significant professional achievement and why?",
-      ]
-      const fallback = fallbackQuestions[adaptiveQuestionsCompleted] || "Tell me about your future career goals."
+      const fallbackQuestions = {
+        en: [
+          "Based on your experience, how would you handle a situation where you need to learn a new technology quickly?",
+          "Can you elaborate on the technical challenges you mentioned and how you overcame them?",
+          "What would you say is your most significant professional achievement and why?",
+        ],
+        hi: [
+          "आपके अनुभव के आधार पर, आप उस स्थिति को कैसे संभालेंगे जहाँ आपको जल्दी से नई तकनीक सीखनी हो?",
+          "क्या आप उन तकनीकी चुनौतियों के बारे में विस्तार से बता सकते हैं जिनका आपने उल्लेख किया और आपने उन्हें कैसे पार किया?",
+          "आप क्या कहेंगे कि आपकी सबसे महत्वपूर्ण व्यावसायिक उपलब्धि क्या है और क्यों?",
+        ],
+      }
+      const fallback =
+        fallbackQuestions[selectedLanguage]?.[adaptiveQuestionsCompleted] ||
+        fallbackQuestions.en[adaptiveQuestionsCompleted] ||
+        (selectedLanguage === "hi"
+          ? "अपने भविष्य के करियर लक्ष्यों के बारे में बताएं।"
+          : "Tell me about your future career goals.")
 
       setQuestions((prev) => [...prev, fallback])
       return fallback
@@ -325,6 +334,7 @@ const InterviewRoom = () => {
       setAiSpeaking,
       isRecording,
       () => startRecording(),
+      selectedLanguage,
     )
   }
 
@@ -341,25 +351,28 @@ const InterviewRoom = () => {
 
     const audioChunks = []
 
+    // Get proper voice configuration for the language
+    const voiceConfig = getVoiceConfig(selectedLanguage)
+    const synthesisOptions = getSynthesisOptions(selectedLanguage, voiceConfig.primary)
+
+    console.log("Using feedback synthesis options:", synthesisOptions)
+
     speechWebSocketRef.current.send(
       JSON.stringify({
         text: feedback,
-        voice: "lily",
-        language: "en",
-        speed: 1.2, // Slightly faster speech
+        ...synthesisOptions,
       }),
     )
 
     const originalOnMessage = speechWebSocketRef.current.onmessage
 
-    // Reduced timeout for faster transitions
     const timeoutId = setTimeout(() => {
       console.warn("Speech synthesis timeout - proceeding anyway")
       setAiSpeaking(false)
       setIsTransitioningToNextQuestion(false)
       speechWebSocketRef.current.onmessage = originalOnMessage
       continueToNextQuestion()
-    }, 8000) // Reduced from 10000
+    }, 8000)
 
     speechWebSocketRef.current.onmessage = (event) => {
       if (typeof event.data === "string") {
@@ -427,7 +440,6 @@ const InterviewRoom = () => {
       stopRecording()
     }
 
-    // Store current response
     const updatedResponses = [...responses]
     updatedResponses[currentQuestionIndex] = userResponse
     setResponses(updatedResponses)
@@ -443,7 +455,10 @@ const InterviewRoom = () => {
     let shouldContinue = true
 
     if (isLastQuestion) {
-      feedbackMessage = "Thank you for completing all the questions. I'll now analyze your responses."
+      feedbackMessage =
+        selectedLanguage === "hi"
+          ? "सभी प्रश्नों को पूरा करने के लिए धन्यवाद। अब मैं आपके उत्तरों का विश्लेषण करूंगा।"
+          : "Thank you for completing all the questions. I'll now analyze your responses."
       shouldContinue = false
       setIsAnalyzing(true)
     } else if (interviewPhase === "basic") {
@@ -451,15 +466,24 @@ const InterviewRoom = () => {
       setBasicQuestionsCompleted(completedBasic)
 
       if (completedBasic >= 3) {
-        feedbackMessage = "Great! Now I'd like to dive deeper based on your responses."
+        feedbackMessage =
+          selectedLanguage === "hi"
+            ? "बहुत बढ़िया! अब मैं आपके उत्तरों के आधार पर गहराई से जानना चाहूंगा।"
+            : "Great! Now I'd like to dive deeper based on your responses."
         setInterviewPhase("adaptive")
       } else {
-        feedbackMessage = "Thank you for that response. Let's continue."
+        feedbackMessage =
+          selectedLanguage === "hi"
+            ? "उस उत्तर के लिए धन्यवाद। आइए आगे बढ़ते हैं।"
+            : "Thank you for that response. Let's continue."
       }
     } else {
       const completedAdaptive = adaptiveQuestionsCompleted + 1
       setAdaptiveQuestionsCompleted(completedAdaptive)
-      feedbackMessage = "Excellent answer. Let me ask something more specific."
+      feedbackMessage =
+        selectedLanguage === "hi"
+          ? "उत्कृष्ट उत्तर। मुझे कुछ और विशिष्ट पूछने दें।"
+          : "Excellent answer. Let me ask something more specific."
     }
 
     console.log("Proceeding with feedback:", feedbackMessage, "shouldContinue:", shouldContinue)
@@ -505,7 +529,8 @@ const InterviewRoom = () => {
     let nextQuestion = null
 
     if (interviewPhase === "basic" && nextIndex < 3) {
-      nextQuestion = BASIC_QUESTIONS[nextIndex]
+      const basicQuestions = getInterviewQuestions(selectedLanguage)
+      nextQuestion = basicQuestions[nextIndex]
       console.log("Next basic question:", nextQuestion)
     } else if (interviewPhase === "adaptive" || nextIndex >= 3) {
       try {
@@ -513,12 +538,24 @@ const InterviewRoom = () => {
         nextQuestion = await generateNextAdaptiveQuestion()
       } catch (error) {
         console.error("Error generating adaptive question:", error)
-        const fallbackQuestions = [
-          "Based on your experience, how would you handle a situation where you need to learn a new technology quickly?",
-          "Can you elaborate on the technical challenges you mentioned and how you overcame them?",
-          "What would you say is your most significant professional achievement and why?",
-        ]
-        nextQuestion = fallbackQuestions[adaptiveQuestionsCompleted] || "Tell me about your future career goals."
+        const fallbackQuestions = {
+          en: [
+            "Based on your experience, how would you handle a situation where you need to learn a new technology quickly?",
+            "Can you elaborate on the technical challenges you mentioned and how you overcame them?",
+            "What would you say is your most significant professional achievement and why?",
+          ],
+          hi: [
+            "आपके अनुभव के आधार पर, आप उस स्थिति को कैसे संभालेंगे जहाँ आपको जल्दी से नई तकनीक सीखनी हो?",
+            "क्या आप उन तकनीकी चुनौतियों के बारे में विस्तार से बता सकते हैं जिनका आपने उल्लेख किया और आपने उन्हें कैसे पार किया?",
+            "आप क्या कहेंगे कि आपकी सबसे महत्वपूर्ण व्यावसायिक उपलब्धि क्या है और क्यों?",
+          ],
+        }
+        nextQuestion =
+          fallbackQuestions[selectedLanguage]?.[adaptiveQuestionsCompleted] ||
+          fallbackQuestions.en[adaptiveQuestionsCompleted] ||
+          (selectedLanguage === "hi"
+            ? "अपने भविष्य के करियर लक्ष्यों के बारे में बताएं।"
+            : "Tell me about your future career goals.")
       }
     }
 
@@ -527,7 +564,6 @@ const InterviewRoom = () => {
       return
     }
 
-    // Quickly re-establish WebSocket connections
     console.log("Re-establishing WebSocket connections...")
 
     if (webSocketRef.current?.readyState === WebSocket.OPEN) {
@@ -537,7 +573,6 @@ const InterviewRoom = () => {
       speechWebSocketRef.current.close()
     }
 
-    // Reduced wait time
     await new Promise((resolve) => setTimeout(resolve, 200))
 
     InterviewWebSockets.setupWebSockets(
@@ -546,10 +581,11 @@ const InterviewRoom = () => {
       setIsSpeechWebSocketReady,
       setTranscript,
       setUserResponse,
+      selectedLanguage,
     )
 
     try {
-      await InterviewWebSockets.waitForWebSocket(speechWebSocketRef, 2500) // Reduced timeout
+      await InterviewWebSockets.waitForWebSocket(speechWebSocketRef, 2500)
       console.log("WebSocket ready, speaking question...")
       speakQuestion(nextQuestion)
     } catch (error) {
@@ -593,6 +629,7 @@ const InterviewRoom = () => {
         roomId,
         questions,
         answers: finalResponses,
+        language: selectedLanguage, // Add this line
       })
 
       console.log("Analysis received:", response.data.analysis)
@@ -607,9 +644,18 @@ const InterviewRoom = () => {
       console.error("Error analyzing responses:", error)
 
       setAnalysis({
-        overview: "Analysis not available due to a technical issue.",
-        strengths: ["Your answers were recorded successfully."],
-        areas_for_improvement: ["We couldn't process the automatic analysis."],
+        overview:
+          selectedLanguage === "hi"
+            ? "तकनीकी समस्या के कारण विश्लेषण उपलब्ध नहीं है।"
+            : "Analysis not available due to a technical issue.",
+        strengths: [
+          selectedLanguage === "hi" ? "आपके उत्तर सफलतापूर्वक रिकॉर्ड किए गए।" : "Your answers were recorded successfully.",
+        ],
+        areas_for_improvement: [
+          selectedLanguage === "hi"
+            ? "हम स्वचालित विश्लेषण प्रक्रिया नहीं कर सके।"
+            : "We couldn't process the automatic analysis.",
+        ],
         score: {
           overall: null,
           categories: [],
@@ -640,9 +686,13 @@ const InterviewRoom = () => {
 
   const getCurrentProgress = () => {
     if (interviewPhase === "basic") {
-      return `Basic Question ${currentQuestionIndex + 1} of 3`
+      return selectedLanguage === "hi"
+        ? `बुनियादी प्रश्न ${currentQuestionIndex + 1} का 3`
+        : `Basic Question ${currentQuestionIndex + 1} of 3`
     } else {
-      return `Adaptive Question ${currentQuestionIndex - 2} of 3`
+      return selectedLanguage === "hi"
+        ? `अनुकूली प्रश्न ${currentQuestionIndex - 2} का 3`
+        : `Adaptive Question ${currentQuestionIndex - 2} of 3`
     }
   }
 
@@ -755,7 +805,7 @@ const InterviewRoom = () => {
   }
 
   if (analysis) {
-    return <InterviewAnalysis analysis={analysis} />
+    return <InterviewAnalysis analysis={analysis} language={selectedLanguage} />
   }
 
   return (
@@ -782,6 +832,7 @@ const InterviewRoom = () => {
           currentProgress={getCurrentProgress()}
           totalQuestions={getTotalQuestions()}
           isGeneratingNextQuestion={isGeneratingNextQuestion}
+          language={selectedLanguage}
         />
       ) : (
         <InterviewStart startInterview={startInterview} />

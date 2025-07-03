@@ -22,7 +22,8 @@ const UserManagement = () => {
     sortOrder: "desc",
   })
   const [activeFilters, setActiveFilters] = useState([])
-  const [impersonating, setImpersonating] = useState(false)
+  // Changed: Track impersonation by user ID instead of global boolean
+  const [impersonatingUserId, setImpersonatingUserId] = useState(null)
 
   useEffect(() => {
     fetchUsers()
@@ -89,7 +90,8 @@ const UserManagement = () => {
   // Fixed user impersonation function
   const handleLoginAsUser = async (userId) => {
     try {
-      setImpersonating(true)
+      // Changed: Set the specific user ID being impersonated
+      setImpersonatingUserId(userId)
       const adminToken = Cookies.get("admintoken")
 
       console.log("Attempting to impersonate user:", userId)
@@ -161,7 +163,8 @@ const UserManagement = () => {
       console.error("Error during user impersonation:", error)
       toast.error(error.response?.data?.message || "Failed to login as user")
     } finally {
-      setImpersonating(false)
+      // Changed: Clear the specific user ID being impersonated
+      setImpersonatingUserId(null)
     }
   }
 
@@ -387,14 +390,14 @@ const UserManagement = () => {
                             <FileText className="h-4 w-4" />
                           </button>
 
-                          {/* Login as User Button */}
+                          {/* Login as User Button - Changed: Check if this specific user is being impersonated */}
                           <button
                             className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-blue-600"
                             onClick={() => handleLoginAsUser(user.id)}
                             title="Login as User"
-                            disabled={impersonating}
+                            disabled={impersonatingUserId === user.id}
                           >
-                            {impersonating ? (
+                            {impersonatingUserId === user.id ? (
                               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
                             ) : (
                               <LogIn className="h-4 w-4" />

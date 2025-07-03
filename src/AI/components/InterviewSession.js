@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef } from "react"
+import { getLocalizedText, formatLocalizedText } from "../utils/languageUtils"
 
 const InterviewSession = ({
   localVideoRef,
@@ -19,10 +20,10 @@ const InterviewSession = ({
   currentProgress,
   totalQuestions,
   isGeneratingNextQuestion,
+  language = "en",
 }) => {
   const transcriptContainerRef = useRef(null)
 
-  // Auto-scroll transcript to bottom when new content is added
   useEffect(() => {
     if (transcriptContainerRef.current) {
       const container = transcriptContainerRef.current
@@ -42,8 +43,8 @@ const InterviewSession = ({
           })
           if (i < currentQuestionIndex) {
             messages.push({
-              sender: "You",
-              text: "Previous response to question " + (i + 1),
+              sender: getLocalizedText(language, "you"),
+              text: language === "hi" ? `प्रश्न ${i + 1} का पिछला उत्तर` : `Previous response to question ${i + 1}`,
               type: "user",
             })
           }
@@ -52,7 +53,7 @@ const InterviewSession = ({
     }
     if (userResponse && userResponse.trim()) {
       messages.push({
-        sender: "You",
+        sender: getLocalizedText(language, "you"),
         text: userResponse,
         type: "user",
       })
@@ -67,11 +68,16 @@ const InterviewSession = ({
       <div className="bg-gray-800 p-4 flex justify-between items-center">
         <div className="flex items-center">
           <div className="bg-green-500 h-4 w-4 rounded-full animate-pulse mr-2"></div>
-          <span className="font-medium">Voice Interview Active</span>
+          <span className="font-medium">{getLocalizedText(language, "voiceInterviewActive")}</span>
           <div className="ml-4 px-3 py-1 bg-blue-600 rounded-full text-sm">
-            Question {currentQuestionIndex + 1} of {totalQuestions}
+            {formatLocalizedText(language, "questionOf", {
+              current: currentQuestionIndex + 1,
+              total: totalQuestions,
+            })}
           </div>
-          <div className="ml-2 px-3 py-1 bg-green-600 rounded-full text-sm capitalize">{interviewPhase} Phase</div>
+          <div className="ml-2 px-3 py-1 bg-green-600 rounded-full text-sm capitalize">
+            {getLocalizedText(language, `${interviewPhase}Phase`)}
+          </div>
         </div>
         <div className="flex items-center space-x-4">
           {isGeneratingNextQuestion && (
@@ -89,7 +95,7 @@ const InterviewSession = ({
                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                 ></path>
               </svg>
-              Generating Question...
+              {getLocalizedText(language, "generatingQuestion")}
             </div>
           )}
           <div className={`p-2 rounded-md ${timerActive ? "bg-red-600 animate-pulse" : "bg-gray-700"}`}>
@@ -112,11 +118,10 @@ const InterviewSession = ({
               />
               <div className="absolute top-4 left-4 bg-black bg-opacity-70 px-4 py-2 rounded-lg">
                 <div className="flex items-center">
-                  <span className="text-white font-medium">You</span>
+                  <span className="text-white font-medium">{getLocalizedText(language, "you")}</span>
                 </div>
               </div>
 
-              {/* Interview Phase Indicator */}
               <div className="absolute top-4 right-4 bg-gray-900 bg-opacity-80 px-4 py-2 rounded-lg">
                 <div className="flex items-center text-white text-sm">
                   <div
@@ -124,7 +129,7 @@ const InterviewSession = ({
                       interviewPhase === "basic" ? "bg-blue-400" : "bg-green-400"
                     }`}
                   ></div>
-                  <span className="capitalize">{interviewPhase} Phase</span>
+                  <span className="capitalize">{getLocalizedText(language, `${interviewPhase}Phase`)}</span>
                 </div>
               </div>
 
@@ -134,7 +139,7 @@ const InterviewSession = ({
               >
                 <div className="bg-gradient-to-r from-blue-600 to-indigo-700 px-4 py-2 flex items-center">
                   <div className="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
-                  <span className="text-white font-medium">Alex (AI)</span>
+                  <span className="text-white font-medium">{getLocalizedText(language, "alex")}</span>
                 </div>
                 <div className="p-4 flex items-center justify-center bg-gray-800">
                   <div className="w-36 h-36 relative">
@@ -217,7 +222,9 @@ const InterviewSession = ({
                     <div className="bg-gray-800 bg-opacity-90 px-6 py-3 rounded-full shadow-lg">
                       <div className="flex items-center">
                         <span className="text-white font-medium text-lg">
-                          {isGeneratingNextQuestion ? "Generating Question" : "AI Speaking"}
+                          {isGeneratingNextQuestion
+                            ? getLocalizedText(language, "generatingQuestion")
+                            : getLocalizedText(language, "aiSpeaking")}
                         </span>
                         <div className="ml-2 flex space-x-1">
                           <div
@@ -263,7 +270,7 @@ const InterviewSession = ({
                       <span className="relative inline-flex rounded-full h-3 w-3 bg-red-400"></span>
                     </span>
                   </div>
-                  <span className="font-medium text-white">Recording</span>
+                  <span className="font-medium text-white">{getLocalizedText(language, "recording")}</span>
                 </div>
               )}
             </div>
@@ -273,14 +280,17 @@ const InterviewSession = ({
         <div className="md:w-1/3 flex flex-col h-full overflow-hidden">
           <div className="flex-1 flex flex-col p-4 bg-white rounded-lg shadow-lg overflow-hidden">
             <div className="py-2 px-4 bg-gray-100 border-b border-gray-200 rounded-t-lg">
-              <h3 className="font-medium text-gray-800">Live Voice Transcript</h3>
+              <h3 className="font-medium text-gray-800">{getLocalizedText(language, "liveVoiceTranscript")}</h3>
               <div className="text-xs text-gray-600 mt-1 flex items-center justify-between">
                 <span>
-                  Progress: {currentQuestionIndex + 1} of {totalQuestions} questions
+                  {formatLocalizedText(language, "progress", {
+                    current: currentQuestionIndex + 1,
+                    total: totalQuestions,
+                  })}
                 </span>
                 <span className="flex items-center">
                   <div className="w-2 h-2 bg-green-500 rounded-full mr-1 animate-pulse"></div>
-                  Auto-scrolling
+                  {getLocalizedText(language, "autoScrolling")}
                 </span>
               </div>
             </div>
@@ -306,7 +316,7 @@ const InterviewSession = ({
               {isRecording && transcript && (
                 <div className="flex flex-col">
                   <span className="text-sm text-gray-600 mb-1 flex items-center">
-                    You (Live)
+                    {getLocalizedText(language, "youLive")}
                     <div className="ml-2 w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
                   </span>
                   <div className="bg-blue-100 border border-blue-300 text-blue-800 p-3 rounded-lg max-w-xs lg:max-w-md">
@@ -340,7 +350,7 @@ const InterviewSession = ({
                       </svg>
                     </div>
                   </div>
-                  <span className="font-medium text-gray-800">Alex (AI)</span>
+                  <span className="font-medium text-gray-800">{getLocalizedText(language, "alex")}</span>
                 </div>
 
                 {(aiSpeaking || isGeneratingNextQuestion) && (
@@ -380,7 +390,7 @@ const InterviewSession = ({
                         d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"
                       />
                     </svg>
-                    Stop Recording
+                    {getLocalizedText(language, "stopRecording")}
                   </button>
                 ) : (
                   <button
@@ -410,13 +420,13 @@ const InterviewSession = ({
                             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                           ></path>
                         </svg>
-                        Generating...
+                        {getLocalizedText(language, "generating")}
                       </>
                     ) : (
                       <>
                         {currentQuestionIndex + 1 >= totalQuestions ? (
                           <>
-                            <span>Finish Interview</span>
+                            <span>{getLocalizedText(language, "finishInterview")}</span>
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
                               className="h-5 w-5 ml-2"
@@ -429,7 +439,7 @@ const InterviewSession = ({
                           </>
                         ) : (
                           <>
-                            <span>Next Question</span>
+                            <span>{getLocalizedText(language, "nextQuestion")}</span>
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
                               className="h-5 w-5 ml-2"

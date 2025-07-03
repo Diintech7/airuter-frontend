@@ -345,7 +345,6 @@ const PostJobsContent = () => {
               className="w-4 h-4 text-purple-600 focus:ring-purple-500"
             />
             <div className="flex items-center space-x-2">
-              <Eye size={16} className={colors.textSecondary} />
               <span className={`text-sm ${colors.textPrimary}`}>Public</span>
             </div>
           </label>
@@ -359,13 +358,12 @@ const PostJobsContent = () => {
               className="w-4 h-4 text-purple-600 focus:ring-purple-500"
             />
             <div className="flex items-center space-x-2">
-              <EyeOff size={16} className={colors.textSecondary} />
               <span className={`text-sm ${colors.textPrimary}`}>Private</span>
             </div>
           </label>
         </div>
         <p className={`text-xs ${colors.textSecondary} mt-1`}>
-          Public jobs are visible to all users. Private jobs are only visible to invited candidates.
+          Public jobs are visible to all users. Private jobs are only visible to invited partners.
         </p>
       </div>
 

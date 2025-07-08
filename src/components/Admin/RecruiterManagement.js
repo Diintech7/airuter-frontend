@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Search, Filter, Plus, Pencil, Trash2, Eye, X, LogIn } from "lucide-react"
+import { Search, Filter, Plus, Pencil, Trash2, Eye, X, LogIn, MoreVertical } from "lucide-react"
 import axios from "axios"
 import { toast } from "react-toastify"
 import Cookies from "js-cookie"
@@ -30,6 +30,9 @@ const RecruiterManagement = () => {
   const [availableIndustries, setAvailableIndustries] = useState([])
   const [activeFilters, setActiveFilters] = useState([])
 
+  // Add state for dropdown menus
+  const [openDropdown, setOpenDropdown] = useState(null)
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -54,6 +57,20 @@ const RecruiterManagement = () => {
     }
   }, [recruiters])
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (openDropdown && !event.target.closest('.dropdown-container')) {
+        setOpenDropdown(null)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [openDropdown])
+
   const fetchRecruiters = async () => {
     try {
       setLoading(true)
@@ -70,6 +87,7 @@ const RecruiterManagement = () => {
       })
 
       if (response.data.success) {
+        console.log(response.data.recruiters)
         setRecruiters(response.data.recruiters)
       } else {
         toast.error("Failed to fetch recruiters")
@@ -254,11 +272,13 @@ const RecruiterManagement = () => {
       },
     })
     setShowModal(true)
+    setOpenDropdown(null)
   }
 
   const handleViewDetails = (recruiter) => {
     setCurrentRecruiter(recruiter)
     setShowDetailView(true)
+    setOpenDropdown(null)
   }
 
   const resetForm = () => {
@@ -382,6 +402,21 @@ const RecruiterManagement = () => {
 
   const getDefaultLogo = (companyName) => {
     return `https://ui-avatars.com/api/?name=${encodeURIComponent(companyName)}&background=random&color=fff&size=64`
+  }
+
+  // Format date function
+  const formatDate = (dateString) => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    })
+  }
+
+  // Toggle dropdown function
+  const toggleDropdown = (recruiterId) => {
+    setOpenDropdown(openDropdown === recruiterId ? null : recruiterId)
   }
 
   return (
@@ -529,7 +564,7 @@ const RecruiterManagement = () => {
                     Position
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Role
+                    Created At
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Status
@@ -552,16 +587,8 @@ const RecruiterManagement = () => {
                       <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-400">
                         {recruiter.company?.position || "-"}
                       </td>
-                      <td className="px-4 py-4 text-sm">
-                        <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            recruiter.role === "partner"
-                              ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300"
-                              : "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300"
-                          }`}
-                        >
-                          {recruiter.role === "partner" ? "Partner" : "Recruiter"}
-                        </span>
+                      <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-400">
+                        {recruiter.createdAt ? formatDate(recruiter.createdAt) : "-"}
                       </td>
                       <td className="px-4 py-4 text-sm">
                         <span
@@ -576,27 +603,7 @@ const RecruiterManagement = () => {
                       </td>
                       <td className="px-4 py-4 text-sm text-gray-500">
                         <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => handleEdit(recruiter)}
-                            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
-                            title="Edit"
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(recruiter._id)}
-                            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
-                            title="Delete"
-                          >
-                            <Trash2 className="h-4 w-4 text-red-600" />
-                          </button>
-                          <button
-                            onClick={() => handleViewDetails(recruiter)}
-                            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
-                            title="View Details"
-                          >
-                            <Eye className="h-4 w-4 text-blue-600" />
-                          </button>
+                          <div className="relative dropdown-container">
                           <button
                             className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-blue-600"
                             onClick={() => handleLoginAsRecruiter(recruiter._id)}
@@ -609,6 +616,47 @@ const RecruiterManagement = () => {
                               <LogIn className="h-4 w-4" />
                             )}
                           </button>
+                            <button
+                              onClick={() => toggleDropdown(recruiter._id)}
+                              className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                              title="More actions"
+                            >
+                              <MoreVertical className="h-4 w-4" />
+                            </button>
+                            
+                            {openDropdown === recruiter._id && (
+                              <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg z-10 border border-gray-200 dark:border-gray-600">
+                                <div className="py-1">
+                                  <button
+                                    onClick={() => handleEdit(recruiter)}
+                                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600"
+                                  >
+                                    <Pencil className="h-4 w-4 mr-2" />
+                                    Edit
+                                  </button>
+                                  <button
+                                    onClick={() => handleViewDetails(recruiter)}
+                                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600"
+                                  >
+                                    <Eye className="h-4 w-4 mr-2" />
+                                    View Details
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      setOpenDropdown(null)
+                                      handleDelete(recruiter._id)
+                                    }}
+                                    className="flex items-center w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-600"
+                                  >
+                                    <Trash2 className="h-4 w-4 mr-2" />
+                                    Delete
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                          
+                          
                         </div>
                       </td>
                     </tr>
@@ -683,68 +731,73 @@ const RecruiterManagement = () => {
                   className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   required
                 />
-              </div>
+                              </div>
 
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Position</label>
-                <input
-                  type="text"
-                  name="company.position"
-                  value={formData.company.position}
-                  onChange={handleInputChange}
-                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  required
-                />
-              </div>
+<div className="mb-4">
+  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Position</label>
+  <input
+    type="text"
+    name="company.position"
+    value={formData.company.position}
+    onChange={handleInputChange}
+    className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+    required
+  />
+</div>
 
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Company Website
-                </label>
-                <input
-                  type="url"
-                  name="company.website"
-                  value={formData.company.website}
-                  onChange={handleInputChange}
-                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  required
-                />
-              </div>
+<div className="mb-6">
+  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+    Company Website
+  </label>
+  <input
+    type="url"
+    name="company.website"
+    value={formData.company.website}
+    onChange={handleInputChange}
+    className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+    required
+  />
+</div>
 
-              <div className="flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={resetForm}
-                  className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600"
-                >
-                  Cancel
-                </button>
-                <button type="submit" className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
-                  {editMode ? "Update Recruiter" : "Add Recruiter"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+<div className="flex justify-end gap-2">
+  <button
+    type="button"
+    onClick={resetForm}
+    className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600"
+  >
+    Cancel
+  </button>
+  <button type="submit" className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+    {editMode ? "Update Recruiter" : "Add Recruiter"}
+  </button>
+</div>
+</form>
+</div>
+</div>
+)}
 
-      {/* Recruiter Detail View */}
-      {showDetailView && currentRecruiter && (
-        <RecruiterDetailView
-          recruiter={currentRecruiter}
-          onClose={() => setShowDetailView(false)}
-          onEdit={() => {
-            setShowDetailView(false)
-            handleEdit(currentRecruiter)
-          }}
-          onDelete={() => {
-            setShowDetailView(false)
-            handleDelete(currentRecruiter._id)
-          }}
-        />
-      )}
-    </div>
-  )
+{/* Recruiter Detail View */}
+{showDetailView && currentRecruiter && (
+<RecruiterDetailView
+recruiter={currentRecruiter}
+onClose={() => setShowDetailView(false)}
+onEdit={() => {
+setShowDetailView(false)
+handleEdit(currentRecruiter)
+}}
+onDelete={() => {
+setShowDetailView(false)
+handleDelete(currentRecruiter._id)
+}}
+onLogin={() => {
+setShowDetailView(false)
+handleLoginAsRecruiter(currentRecruiter._id)
+}}
+impersonatingId={impersonatingId}
+/>
+)}
+</div>
+)
 }
 
 export default RecruiterManagement

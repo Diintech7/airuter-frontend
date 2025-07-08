@@ -514,7 +514,7 @@ const JobCandidatesContent = () => {
                               }}
                               className={`px-3 py-1.5 ${isDark ? 'bg-blue-700 hover:bg-blue-600' : 'bg-blue-600 hover:bg-blue-700'} text-white text-sm rounded-lg transition-colors duration-200`}
                             >
-                              Send Link
+                              Schedule Link
                             </button>
                           ) : (
                             interviewDataMap[application._id]?.screenRecordingUrl ? (
@@ -552,7 +552,7 @@ const JobCandidatesContent = () => {
       <Dialog open={showInterviewModal} onOpenChange={setShowInterviewModal}>
         <DialogContent className={isDark ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}>
           <DialogHeader>
-            <DialogTitle className={colors.text}>Schedule Mock Interview</DialogTitle>
+            <DialogTitle className={colors.text}>Schedule Ai Mock Interview</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>

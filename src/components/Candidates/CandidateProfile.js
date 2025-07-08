@@ -276,7 +276,7 @@ const CandidateProfile = () => {
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <label className={`block text-sm font-medium ${colors.text} mb-1`}>Schedule Mock Interview</label>
+              <label className={`block text-sm font-medium ${colors.text} mb-1`}>Schedule Ai Mock Interview</label>
               <textarea
                 value={interviewDetails.document}
                 onChange={(e) => setInterviewDetails({ ...interviewDetails, document: e.target.value })}

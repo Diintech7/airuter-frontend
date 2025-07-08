@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Briefcase, MapPin, Clock, DollarSign, Calendar, Award } from 'lucide-react';
+import { ArrowLeft, Briefcase, MapPin, Clock, IndianRupee, Calendar, Award } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '../UI/Card';
 import { useTheme } from '../../context/ThemeContext';
 import { useThemeStyles } from '../hooks/useThemeStyles';
@@ -148,7 +148,7 @@ const JobPreviewPage = () => {
             </div>
             
             <div className={`flex items-center p-4 rounded-lg ${isDark ? 'bg-gray-800' : 'bg-gray-50'}`}>
-              <DollarSign className={`h-5 w-5 mr-3 ${isDark ? 'text-purple-400' : 'text-purple-600'}`} />
+              <IndianRupee className={`h-5 w-5 mr-3 ${isDark ? 'text-purple-400' : 'text-purple-600'}`} />
               <div>
                 <p className={`text-xs ${colors.textMuted}`}>Salary</p>
                 <p className="font-medium">

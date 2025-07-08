@@ -7,7 +7,7 @@ import {
   ArrowLeft,
   Upload,
   Building2,
-  DollarSign,
+  IndianRupee,
   FileText,
   X,
   Calendar,
@@ -512,7 +512,7 @@ const JobDetail = () => {
                     ))}
                   </div>
                   <div className={`mt-6 ${salaryBg} p-4 rounded-xl flex items-center space-x-4`}>
-                    <DollarSign size={24} className={isDark ? "text-green-300" : "text-green-600"} />
+                    <IndianRupee size={24} className={isDark ? "text-green-300" : "text-green-600"} />
                     <div>
                       <p className={`text-sm ${isDark ? "text-green-100" : "text-gray-600"}`}>Salary Range</p>
                       <p className={`text-lg font-bold ${salaryText}`}>
@@ -575,7 +575,7 @@ const JobDetail = () => {
 
               <div className={`${cardBg} rounded-2xl shadow-xl p-6`}>
                 <h2 className={`text-xl font-bold ${textColor} mb-4 flex items-center`}>
-                  <DollarSign size={24} className="mr-2 text-purple-600" />
+                  <IndianRupee size={24} className="mr-2 text-purple-600" />
                   Benefits
                 </h2>
                 <div className="grid md:grid-cols-2 gap-4">
@@ -823,34 +823,6 @@ const JobDetail = () => {
                         disabled={submitting || extractingCoverLetter}
                         className={`w-full rounded-xl ${inputBg} ${inputBorder} focus:border-purple-500 focus:ring-purple-500 transition-colors duration-200 ${disabledBg} ${disabledText} ${inputText}`}
                         placeholder="Write your cover letter here or upload a file above... (Optional)"
-                      />
-                    </div>
-
-                    <div>
-                      <label className={`block text-sm font-semibold ${textColor} mb-2`}>
-                        Additional Notes
-                        <button
-                          type="button"
-                          onClick={() => generateContent("additionalNotes")}
-                          disabled={generatingAdditionalNotes || submitting}
-                          className={`ml-2 inline-flex items-center ${isDark ? "text-purple-400 hover:text-purple-300" : "text-purple-600 hover:text-purple-800"} text-sm`}
-                        >
-                          <Wand2 size={16} className="mr-1" />
-                          {generatingAdditionalNotes ? "Generating..." : "Generate"}
-                        </button>
-                      </label>
-                      <textarea
-                        value={applicationData.additionalNotes}
-                        onChange={(e) =>
-                          setApplicationData((prev) => ({
-                            ...prev,
-                            additionalNotes: e.target.value,
-                          }))
-                        }
-                        rows={3}
-                        disabled={submitting}
-                        className={`w-full rounded-xl ${inputBg} ${inputBorder} focus:border-purple-500 focus:ring-purple-500 transition-colors duration-200 ${disabledBg} ${disabledText} ${inputText}`}
-                        placeholder="Any additional information you'd like to share..."
                       />
                     </div>
 

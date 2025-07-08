@@ -5,7 +5,7 @@ const SidebarMenu = ({ isExpanded, currentPath, handleNavigate, isDark }) => {
   const menuItems = [
     { icon: Home, label: 'Dashboard', path: '/dashboard' },
     { icon: Users, label: 'Jobs', path: '/jobs' },
-    { icon: FileText, label: 'Jobs Applied', path: '/jobs-applied' },
+    { icon: FileText, label: 'Applied Jobs', path: '/jobs-applied' },
     { icon: FileText, label: 'Resume Analyzer', path: '/resume-analyzer' },
     { icon: Phone, label: 'AI Telephonic', path: '/ai-telephonic' },
     { icon: Video, label: 'AI Video f2f', path: '/ai-video' },

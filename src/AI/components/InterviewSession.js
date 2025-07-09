@@ -21,6 +21,7 @@ const InterviewSession = ({
   totalQuestions,
   isGeneratingNextQuestion,
   language = "en",
+  responses = [],
 }) => {
   const transcriptContainerRef = useRef(null)
 
@@ -60,9 +61,7 @@ const InterviewSession = ({
     }
     return messages
   }
-
   const messages = parseTranscript(userResponse)
-
   return (
     <div className="flex flex-col h-full">
       <div className="bg-gray-800 p-4 flex justify-between items-center">
@@ -103,7 +102,6 @@ const InterviewSession = ({
           </div>
         </div>
       </div>
-
       <div className="flex-1 flex flex-col md:flex-row p-4 overflow-hidden">
         <div className="md:w-2/3 pr-0 md:pr-4 mb-4 md:mb-0">
           <div className="bg-black rounded-lg h-full flex flex-col overflow-hidden">
@@ -276,11 +274,10 @@ const InterviewSession = ({
             </div>
           </div>
         </div>
-
         <div className="md:w-1/3 flex flex-col h-full overflow-hidden">
           <div className="flex-1 flex flex-col p-4 bg-white rounded-lg shadow-lg overflow-hidden">
             <div className="py-2 px-4 bg-gray-100 border-b border-gray-200 rounded-t-lg">
-              <h3 className="font-medium text-gray-800">{getLocalizedText(language, "liveVoiceTranscript")}</h3>
+              <h3 className="font-medium text-gray-800">{getLocalizedText(language, "yourAnswers")}</h3>
               <div className="text-xs text-gray-600 mt-1 flex items-center justify-between">
                 <span>
                   {formatLocalizedText(language, "progress", {
@@ -288,45 +285,38 @@ const InterviewSession = ({
                     total: totalQuestions,
                   })}
                 </span>
-                <span className="flex items-center">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mr-1 animate-pulse"></div>
-                  {getLocalizedText(language, "autoScrolling")}
-                </span>
               </div>
             </div>
 
             <div
               ref={transcriptContainerRef}
-              className="flex-1 overflow-y-auto p-4 space-y-4"
+              className="flex-1 overflow-y-auto p-4 space-y-6"
               style={{ scrollBehavior: "smooth" }}
             >
-              {messages.map((message, index) => (
-                <div key={index} className="flex flex-col">
-                  <span className="text-sm text-gray-600 mb-1">{message.sender}</span>
-                  <div
-                    className={`p-3 rounded-lg max-w-xs lg:max-w-md ${
-                      message.type === "ai" ? "bg-gray-100 text-gray-800" : "bg-blue-600 text-white self-end"
-                    }`}
-                  >
-                    <p>{message.text}</p>
+              {/* Show all previous Q&A pairs */}
+              {questions.slice(0, currentQuestionIndex).map((q, idx) => (
+                <div key={idx} className="mb-4">
+                  <div className="text-sm text-gray-500 mb-1">{getLocalizedText(language, "question")}</div>
+                  <div className="bg-gray-100 text-gray-800 p-3 rounded-lg max-w-xs lg:max-w-md">
+                    <p>{q}</p>
+                  </div>
+                  <div className="text-sm text-gray-500 mt-2 mb-1">{getLocalizedText(language, "yourAnswer")}</div>
+                  <div className="bg-blue-600 text-white p-3 rounded-lg max-w-xs lg:max-w-md self-end">
+                    <p>{responses && responses[idx] ? responses[idx] : <span className="italic text-gray-300">No answer</span>}</p>
                   </div>
                 </div>
               ))}
-
-              {isRecording && transcript && (
-                <div className="flex flex-col">
-                  <span className="text-sm text-gray-600 mb-1 flex items-center">
-                    {getLocalizedText(language, "youLive")}
-                    <div className="ml-2 w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                  </span>
-                  <div className="bg-blue-100 border border-blue-300 text-blue-800 p-3 rounded-lg max-w-xs lg:max-w-md">
-                    <p className="flex items-center">
-                      <span className="animate-pulse mr-2 text-red-500">●</span>
-                      {transcript}
-                    </p>
-                  </div>
+              {/* Show current question and live answer */}
+              <div>
+                <div className="text-sm text-gray-500 mb-1">{getLocalizedText(language, "question")}</div>
+                <div className="bg-gray-100 text-gray-800 p-3 rounded-lg max-w-xs lg:max-w-md">
+                  <p>{questions[currentQuestionIndex]}</p>
                 </div>
-              )}
+                <div className="text-sm text-gray-500 mt-2 mb-1">{getLocalizedText(language, "yourAnswer")}</div>
+                <div className="bg-blue-600 text-white p-3 rounded-lg max-w-xs lg:max-w-md self-end">
+                  <p>{userResponse}</p>
+                </div>
+              </div>
             </div>
 
             <div className="mt-auto border-t border-gray-200 pt-4 bg-white">
@@ -468,5 +458,4 @@ const InterviewSession = ({
     </div>
   )
 }
-
 export default InterviewSession

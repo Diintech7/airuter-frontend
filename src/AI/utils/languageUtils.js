@@ -93,6 +93,9 @@ export const getVoiceConfig = (language) => {
         analyzingInterview: "Analyzing Your Interview",
         analysisInProgress:
           "We're carefully reviewing your responses to provide detailed feedback. This may take a few moments...",
+        question: "Question",
+        yourAnswer: "Your Answer",
+        yourAnswers: "Your Answers",
       },
       hi: {
         voiceInterviewActive: "वॉयस साक्षात्कार सक्रिय",
@@ -130,6 +133,9 @@ export const getVoiceConfig = (language) => {
         analyzingInterview: "आपके साक्षात्कार का विश्लेषण",
         analysisInProgress:
           "हम आपको विस्तृत फीडबैक प्रदान करने के लिए आपके उत्तरों की सावधानीपूर्वक समीक्षा कर रहे हैं। इसमें कुछ समय लग सकता है...",
+        question: "प्रश्न",
+        yourAnswer: "आपका उत्तर",
+        yourAnswers: "आपके उत्तर",
       },
     }
   

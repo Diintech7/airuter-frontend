@@ -1,5 +1,4 @@
 "use client"
-
 import { useState, useEffect, useRef } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import axios from "axios"
@@ -12,17 +11,11 @@ import InterviewMediaControls from "./components/InterviewMediaControls"
 import InterviewWebSockets from "./components/InterviewWebSockets"
 import EnhancedLoadingAnimation from "./components/EnhancedLoadingAnimation"
 import { getInterviewQuestions, getVoiceConfig, getSynthesisOptions } from "./utils/languageUtils"
-
 Chart.register(...registerables)
-
 const InterviewRoom = () => {
   const { roomId } = useParams()
   const navigate = useNavigate()
-
-  // Language state
   const [selectedLanguage, setSelectedLanguage] = useState("en")
-
-  // Question management state
   const [questions, setQuestions] = useState([])
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [userResponse, setUserResponse] = useState("")
@@ -32,8 +25,6 @@ const InterviewRoom = () => {
   const [basicQuestionsCompleted, setBasicQuestionsCompleted] = useState(0)
   const [adaptiveQuestionsCompleted, setAdaptiveQuestionsCompleted] = useState(0)
   const [interviewDocument, setInterviewDocument] = useState("")
-
-  // Existing state
   const [isLoading, setIsLoading] = useState(true)
   const [interviewTime, setInterviewTime] = useState(null)
   const [isInterviewActive, setIsInterviewActive] = useState(false)
@@ -52,8 +43,6 @@ const InterviewRoom = () => {
   const [screenRecordingUrl, setScreenRecordingUrl] = useState(null)
   const [isTransitioningToNextQuestion, setIsTransitioningToNextQuestion] = useState(false)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
-
-  // Refs
   const screenMediaRecorderRef = useRef(null)
   const screenVideoChunksRef = useRef([])
   const webSocketRef = useRef(null)
@@ -65,12 +54,10 @@ const InterviewRoom = () => {
   const localVideoRef = useRef(null)
   const containerRef = useRef(null)
   const timerRef = useRef(null)
-
   const hmsActions = useHMSActions()
   const isConnected = useHMSStore(selectIsConnectedToRoom)
   const localPeer = useHMSStore(selectLocalPeer)
   const peers = useHMSStore(selectPeers)
-
   const startScreenRecording = async () => {
     try {
       const stream = await InterviewMediaControls.startScreenRecording(
@@ -137,9 +124,7 @@ const InterviewRoom = () => {
         setIsLoading(false)
       }
     }
-
     fetchInterviewDetails()
-
     return () => {
       if (isConnected) {
         hmsActions.leave()
@@ -166,7 +151,6 @@ const InterviewRoom = () => {
       }
     }
   }, [roomId, hmsActions, isConnected])
-
   useEffect(() => {
     if (timerActive && remainingTime > 0) {
       timerRef.current = setInterval(() => {
@@ -182,12 +166,10 @@ const InterviewRoom = () => {
     } else if (remainingTime <= 0) {
       setTimerActive(false)
     }
-
     return () => {
       if (timerRef.current) clearInterval(timerRef.current)
     }
   }, [timerActive, remainingTime])
-
   useEffect(() => {
     if (permissionsGranted && localVideoRef.current) {
       navigator.mediaDevices
@@ -198,25 +180,19 @@ const InterviewRoom = () => {
         .catch((err) => console.error("Error accessing media devices:", err))
     }
   }, [permissionsGranted])
-
   const startInterview = async (language = "en") => {
     console.log(`Starting interview in ${language}...`)
     setSelectedLanguage(language)
-
     const devicesAvailable = await InterviewMediaControls.checkDeviceAvailability()
     if (!devicesAvailable) return
-
     setInterviewStarted(true)
-
     setTimeout(async () => {
       const hasPermissions = await InterviewMediaControls.requestPermissions(localVideoRef)
       if (!hasPermissions) {
         setInterviewStarted(false)
         return
       }
-
       setPermissionsGranted(true)
-
       console.log("Requesting screen sharing permissions...")
       try {
         const screenStream = await startScreenRecording()
@@ -232,7 +208,6 @@ const InterviewRoom = () => {
         setInterviewStarted(false)
         return
       }
-
       InterviewWebSockets.setupWebSockets(
         webSocketRef,
         speechWebSocketRef,
@@ -241,16 +216,13 @@ const InterviewRoom = () => {
         setUserResponse,
         language,
       )
-
       await initializeBasicQuestions(language)
       toggleFullScreen()
     }, 500)
   }
-
   const toggleFullScreen = () => {
     InterviewMediaControls.toggleFullScreen(containerRef, setIsFullScreen)
   }
-
   const initializeBasicQuestions = async (language) => {
     try {
       console.log(`Initializing basic questions in ${language}...`)
@@ -267,7 +239,6 @@ const InterviewRoom = () => {
       console.error("Error initializing basic questions:", error)
     }
   }
-
   const generateNextAdaptiveQuestion = async () => {
     try {
       setIsGeneratingNextQuestion(true)
@@ -280,7 +251,6 @@ const InterviewRoom = () => {
           answer: response,
         }))
         .filter((qa) => qa.question && qa.answer)
-
       const response = await Promise.race([
         axios.post(`https://airuter-backend.onrender.com/api/interview/generate-adaptive-question`, {
           roomId,
@@ -291,10 +261,8 @@ const InterviewRoom = () => {
         }),
         new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 6000)),
       ])
-
       const nextQuestion = response.data.question
       console.log("Generated adaptive question:", nextQuestion)
-
       setQuestions((prev) => [...prev, nextQuestion])
       return nextQuestion
     } catch (error) {
@@ -324,7 +292,6 @@ const InterviewRoom = () => {
       setIsGeneratingNextQuestion(false)
     }
   }
-
   const speakQuestion = (question) => {
     InterviewWebSockets.speakQuestion(
       question,
@@ -337,7 +304,6 @@ const InterviewRoom = () => {
       selectedLanguage,
     )
   }
-
   const speakFeedback = (feedback) => {
     if (!speechWebSocketRef.current || speechWebSocketRef.current.readyState !== WebSocket.OPEN) {
       console.error("Speech WebSocket not ready for feedback")
@@ -345,27 +311,18 @@ const InterviewRoom = () => {
       continueToNextQuestion()
       return
     }
-
     console.log("Sending feedback to speech synthesis:", feedback)
     setAiSpeaking(true)
-
     const audioChunks = []
-
-    // Get proper voice configuration for the language
     const voiceConfig = getVoiceConfig(selectedLanguage)
     const synthesisOptions = getSynthesisOptions(selectedLanguage, voiceConfig.primary)
-
-    console.log("Using feedback synthesis options:", synthesisOptions)
-
     speechWebSocketRef.current.send(
       JSON.stringify({
         text: feedback,
         ...synthesisOptions,
       }),
     )
-
     const originalOnMessage = speechWebSocketRef.current.onmessage
-
     const timeoutId = setTimeout(() => {
       console.warn("Speech synthesis timeout - proceeding anyway")
       setAiSpeaking(false)
@@ -373,17 +330,14 @@ const InterviewRoom = () => {
       speechWebSocketRef.current.onmessage = originalOnMessage
       continueToNextQuestion()
     }, 8000)
-
     speechWebSocketRef.current.onmessage = (event) => {
       if (typeof event.data === "string") {
         const data = JSON.parse(event.data)
         if (data.type === "end") {
           console.log("Feedback speech synthesis complete")
           clearTimeout(timeoutId)
-
           const combinedBlob = new Blob(audioChunks, { type: "audio/mp3" })
           const url = URL.createObjectURL(combinedBlob)
-
           feedbackAudioPlayerRef.current.src = url
           feedbackAudioPlayerRef.current.onended = () => {
             setAiSpeaking(false)
@@ -391,7 +345,6 @@ const InterviewRoom = () => {
             speechWebSocketRef.current.onmessage = originalOnMessage
             continueToNextQuestion()
           }
-
           feedbackAudioPlayerRef.current.play().catch((error) => {
             console.error("Error playing feedback audio:", error)
             setAiSpeaking(false)
@@ -412,7 +365,6 @@ const InterviewRoom = () => {
       }
     }
   }
-
   const startRecording = async () => {
     await InterviewMediaControls.startRecording(
       mediaRecorderRef,
@@ -423,37 +375,27 @@ const InterviewRoom = () => {
       setTimerActive,
     )
   }
-
   const stopRecording = () => {
     InterviewMediaControls.stopRecording(mediaRecorderRef, setIsRecording, setTimerActive)
   }
-
   const handleNextQuestion = async () => {
     if (isTransitioningToNextQuestion) {
       console.log("Already transitioning to next question, ignoring duplicate request")
       return
     }
-
     setIsTransitioningToNextQuestion(true)
-
     if (isRecording) {
       stopRecording()
     }
-
     const updatedResponses = [...responses]
     updatedResponses[currentQuestionIndex] = userResponse
     setResponses(updatedResponses)
-
     window.finalResponsesForSubmission = [...updatedResponses]
-
     const totalCompleted = currentQuestionIndex + 1
     const isLastQuestion = totalCompleted >= 6
-
     console.log(`Question ${totalCompleted} completed. Is last question: ${isLastQuestion}`)
-
     let feedbackMessage
     let shouldContinue = true
-
     if (isLastQuestion) {
       feedbackMessage =
         selectedLanguage === "hi"
@@ -464,7 +406,6 @@ const InterviewRoom = () => {
     } else if (interviewPhase === "basic") {
       const completedBasic = basicQuestionsCompleted + 1
       setBasicQuestionsCompleted(completedBasic)
-
       if (completedBasic >= 3) {
         feedbackMessage =
           selectedLanguage === "hi"
@@ -485,28 +426,19 @@ const InterviewRoom = () => {
           ? "उत्कृष्ट उत्तर। मुझे कुछ और विशिष्ट पूछने दें।"
           : "Excellent answer. Let me ask something more specific."
     }
-
-    console.log("Proceeding with feedback:", feedbackMessage, "shouldContinue:", shouldContinue)
-
     if (!shouldContinue) {
       speakFeedback(feedbackMessage)
       return
     }
-
     speakFeedback(feedbackMessage)
   }
-
   const continueToNextQuestion = async () => {
     const nextIndex = currentQuestionIndex + 1
     const totalCompleted = nextIndex
-
-    console.log(`Moving to question ${nextIndex + 1}, total completed: ${totalCompleted}`)
-
     if (totalCompleted >= 6) {
       console.log("Interview complete! Submitting final responses...")
       const responsesToSubmit = window.finalResponsesForSubmission || responses
       setIsAnalyzing(true)
-
       try {
         if (isScreenRecording && screenMediaRecorderRef.current) {
           stopScreenRecording(() => {
@@ -521,20 +453,15 @@ const InterviewRoom = () => {
       }
       return
     }
-
     setCurrentQuestionIndex(nextIndex)
     setUserResponse("")
     setTranscript("")
-
     let nextQuestion = null
-
     if (interviewPhase === "basic" && nextIndex < 3) {
       const basicQuestions = getInterviewQuestions(selectedLanguage)
       nextQuestion = basicQuestions[nextIndex]
-      console.log("Next basic question:", nextQuestion)
     } else if (interviewPhase === "adaptive" || nextIndex >= 3) {
       try {
-        console.log("Generating adaptive question...")
         nextQuestion = await generateNextAdaptiveQuestion()
       } catch (error) {
         console.error("Error generating adaptive question:", error)
@@ -558,23 +485,18 @@ const InterviewRoom = () => {
             : "Tell me about your future career goals.")
       }
     }
-
     if (!nextQuestion) {
       console.error("No next question available")
       return
     }
-
     console.log("Re-establishing WebSocket connections...")
-
     if (webSocketRef.current?.readyState === WebSocket.OPEN) {
       webSocketRef.current.close()
     }
     if (speechWebSocketRef.current?.readyState === WebSocket.OPEN) {
       speechWebSocketRef.current.close()
     }
-
     await new Promise((resolve) => setTimeout(resolve, 200))
-
     InterviewWebSockets.setupWebSockets(
       webSocketRef,
       speechWebSocketRef,
@@ -583,7 +505,6 @@ const InterviewRoom = () => {
       setUserResponse,
       selectedLanguage,
     )
-
     try {
       await InterviewWebSockets.waitForWebSocket(speechWebSocketRef, 2500)
       console.log("WebSocket ready, speaking question...")
@@ -593,26 +514,21 @@ const InterviewRoom = () => {
       setTimeout(() => speakQuestion(nextQuestion), 300)
     }
   }
-
   const submitAllResponses = async (finalResponses) => {
     try {
       console.log("Submitting all responses...")
-
       const submitPromises = questions.map((question, index) => {
         return axios.post(`https://airuter-backend.onrender.com/api/interview/response/${roomId}`, {
           question,
           response: finalResponses[index],
         })
       })
-
       await Promise.all(submitPromises)
       console.log("All responses submitted successfully, analyzing now...")
-
       await analyzeResponses(finalResponses)
     } catch (error) {
       console.error("Error submitting responses:", error)
       setIsAnalyzing(false)
-
       try {
         await analyzeResponses(finalResponses)
       } catch (secondError) {
@@ -620,29 +536,23 @@ const InterviewRoom = () => {
       }
     }
   }
-
   const analyzeResponses = async (finalResponses) => {
     try {
       console.log("Analyzing responses...")
-
       const response = await axios.post("https://airuter-backend.onrender.com/api/interview/analyze", {
         roomId,
         questions,
         answers: finalResponses,
         language: selectedLanguage, // Add this line
       })
-
       console.log("Analysis received:", response.data.analysis)
-
       if (document.fullscreenElement) {
         document.exitFullscreen()
       }
-
       setAnalysis(response.data.analysis)
       setIsAnalyzing(false)
     } catch (error) {
       console.error("Error analyzing responses:", error)
-
       setAnalysis({
         overview:
           selectedLanguage === "hi"
@@ -661,29 +571,23 @@ const InterviewRoom = () => {
           categories: [],
         },
       })
-
       setIsAnalyzing(false)
     }
   }
-
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60)
     const secs = seconds % 60
     return `${mins}:${secs < 10 ? "0" : ""}${secs}`
   }
-
   const getTotalQuestions = () => {
     return 6
   }
-
   const getCurrentQuestionNumber = () => {
     return currentQuestionIndex + 1
   }
-
   const isOnLastQuestion = () => {
     return getCurrentQuestionNumber() >= getTotalQuestions()
   }
-
   const getCurrentProgress = () => {
     if (interviewPhase === "basic") {
       return selectedLanguage === "hi"
@@ -695,7 +599,6 @@ const InterviewRoom = () => {
         : `Adaptive Question ${currentQuestionIndex - 2} of 3`
     }
   }
-
   if (isLoading) {
     return (
       <div className="w-full h-screen flex items-center justify-center bg-gray-900">
@@ -721,11 +624,9 @@ const InterviewRoom = () => {
       </div>
     )
   }
-
   if (isAnalyzing) {
     return <EnhancedLoadingAnimation />
   }
-
   if (!isInterviewActive) {
     return (
       <div className="w-full h-screen p-8 bg-gradient-to-b from-gray-900 to-gray-800 flex items-center justify-center">
@@ -803,11 +704,9 @@ const InterviewRoom = () => {
       </div>
     )
   }
-
   if (analysis) {
     return <InterviewAnalysis analysis={analysis} language={selectedLanguage} />
   }
-
   return (
     <div ref={containerRef} className="w-full h-screen bg-gray-900 text-white flex flex-col">
       {interviewStarted ? (
@@ -833,6 +732,7 @@ const InterviewRoom = () => {
           totalQuestions={getTotalQuestions()}
           isGeneratingNextQuestion={isGeneratingNextQuestion}
           language={selectedLanguage}
+          responses={responses}
         />
       ) : (
         <InterviewStart startInterview={startInterview} />
@@ -840,5 +740,4 @@ const InterviewRoom = () => {
     </div>
   )
 }
-
 export default InterviewRoom

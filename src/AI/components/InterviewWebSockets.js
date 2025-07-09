@@ -9,7 +9,7 @@ const InterviewWebSockets = {
     language = "en",
   ) => {
     console.log(`Setting up WebSocket connections for language: ${language}...`)
-    const transcriptionUrl = `ws://localhost:5000/ws/transcribe?language=${language}`
+    const transcriptionUrl = `wss://airuter-backend.onrender.com/ws/transcribe?language=${language}`
     webSocketRef.current = new WebSocket(transcriptionUrl)
 
     webSocketRef.current.onopen = () => {
@@ -37,7 +37,7 @@ const InterviewWebSockets = {
     webSocketRef.current.onclose = () => {
       console.log("Transcription WebSocket closed")
     }
-    speechWebSocketRef.current = new WebSocket("ws://localhost:5000/ws/speech")
+    speechWebSocketRef.current = new WebSocket("wss://airuter-backend.onrender.com/ws/speech")
     speechWebSocketRef.current.onopen = () => {
       console.log("Speech WebSocket connected")
       setIsSpeechWebSocketReady(true)

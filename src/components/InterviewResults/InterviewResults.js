@@ -9,6 +9,7 @@ import { saveAs } from 'file-saver';
 import { useTheme } from '../../context/ThemeContext';
 import { useThemeStyles } from '../hooks/useThemeStyles';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 const InterviewResults = () => {
   const { applicationId } = useParams();
@@ -47,7 +48,7 @@ const InterviewResults = () => {
 
   const handleDownloadVideo = async () => {
     if (!interviewData || !interviewData.screenRecordingUrl) {
-      alert("No video available to download");
+      toast.error('No video available to download');
       return;
     }
   
@@ -66,7 +67,7 @@ const InterviewResults = () => {
       saveAs(blob, fileName);
     } catch (err) {
       console.error("Error downloading video:", err);
-      alert(`Failed to download video. Please try again.`);
+      toast.error('Failed to download video. Please try again.');
     } finally {
       setDownloadingVideo(false);
     }

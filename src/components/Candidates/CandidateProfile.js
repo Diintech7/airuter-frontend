@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Download, Calendar, Clock, ArrowLeft, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
+import { Download, Calendar, Clock, ArrowLeft, CheckCircle2, XCircle, AlertCircle, Loader2, Check } from 'lucide-react';
+import { toast } from 'react-toastify';
 import Cookies from 'js-cookie';
 import { useThemeStyles } from '../hooks/useThemeStyles';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../UI/Dialog';
@@ -18,8 +19,11 @@ const CandidateProfile = () => {
     document: '',
     date: '',
     time: '',
-    duration: 30
+    duration: 30,
+    questions: ''
   });
+  const [interviewSubmitting, setInterviewSubmitting] = useState(false);
+  const [interviewSubmitSuccess, setInterviewSubmitSuccess] = useState(false);
 
   useEffect(() => {
     fetchApplicationDetails();
@@ -97,8 +101,10 @@ const CandidateProfile = () => {
 
   const handleInterviewSubmit = async () => {
     try {
+      setInterviewSubmitting(true);
       const token = Cookies.get('usertoken');
-      const response = await fetch('https://airuter-backend.onrender.com/api/interview/schedule', {
+      const endpoint = application?.interviewRoomId ? 'reschedule' : 'schedule';
+      const response = await fetch(`https://airuter-backend.onrender.com/api/interview/${endpoint}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -113,11 +119,19 @@ const CandidateProfile = () => {
         })
       });
 
-      if (!response.ok) throw new Error('Failed to schedule interview');
-      setShowInterviewModal(false);
-      await fetchApplicationDetails();
+      if (!response.ok) throw new Error(`Failed to ${application?.interviewRoomId ? 'reschedule' : 'schedule'} interview`);
+      setInterviewSubmitSuccess(true);
+      toast.success('Interview scheduled successfully!');
+      setTimeout(async () => {
+        setShowInterviewModal(false);
+        setInterviewSubmitSuccess(false);
+        await fetchApplicationDetails();
+      }, 700);
     } catch (err) {
       setError(err.message);
+      toast.error(err.message || 'Failed to schedule interview');
+    } finally {
+      setInterviewSubmitting(false);
     }
   };
 
@@ -171,10 +185,17 @@ const CandidateProfile = () => {
             <option value="rejected">Rejected</option>
           </select>
           <button
-            onClick={() => setShowInterviewModal(true)}
+            onClick={() => {
+              // Prefill if interview exists on application
+              if (application?.interviewRoomId) {
+                // Attempt to reuse details already fetched in analysis or elsewhere is minimal; keep blank if not present
+                setInterviewDetails((prev) => ({ ...prev }))
+              }
+              setShowInterviewModal(true)
+            }}
             className={`px-4 py-2 ${isDark ? 'bg-blue-700 hover:bg-blue-600' : 'bg-blue-600 hover:bg-blue-700'} text-white rounded-lg transition-colors duration-200`}
           >
-            Schedule Interview
+            {application?.interviewRoomId ? 'Reschedule' : 'Schedule Interview'}
           </button>
         </div>
       </div>
@@ -270,72 +291,152 @@ const CandidateProfile = () => {
 
       {/* Interview Modal */}
       <Dialog open={showInterviewModal} onOpenChange={setShowInterviewModal}>
-        <DialogContent className={isDark ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}>
+        <DialogContent className={`${isDark ? 'bg-gray-800 text-white border-gray-700' : 'bg-white text-gray-900 border-gray-200'} max-w-2xl`}>
           <DialogHeader>
-            <DialogTitle className={colors.text}>Schedule Interview</DialogTitle>
+            <DialogTitle className={`${colors.text} text-xl font-semibold`}>
+              {application?.interviewRoomId ? 'Reschedule AI Interview' : 'Schedule AI Interview'}
+            </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <label className={`block text-sm font-medium ${colors.text} mb-1`}>Schedule Ai Mock Interview</label>
-              <textarea
-                value={interviewDetails.document}
-                onChange={(e) => setInterviewDetails({ ...interviewDetails, document: e.target.value })}
-                className={`w-full p-2 border ${colors.border} ${colors.bgCard} ${colors.text} rounded-lg focus:ring-2 ${isDark ? 'focus:ring-purple-500' : 'focus:ring-purple-600'} transition-colors duration-200`}
-                rows={4}
-                placeholder="Enter the topics to cover during the interview..."
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className={`block text-sm font-medium ${colors.text} mb-1`}>Date</label>
-                <div className="relative">
-                  <Calendar className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${colors.textMuted}`} size={16} />
-                  <input
-                    type="date"
-                    value={interviewDetails.date}
-                    onChange={(e) => setInterviewDetails({ ...interviewDetails, date: e.target.value })}
-                    className={`w-full pl-10 p-2 border ${colors.border} ${colors.bgCard} ${colors.text} rounded-lg focus:ring-2 ${isDark ? 'focus:ring-purple-500' : 'focus:ring-purple-600'} transition-colors duration-200`}
-                  />
+          <div className="space-y-6">
+            {/* Date and Time Section - Top Priority */}
+            <div className={`p-4 rounded-lg ${isDark ? 'bg-gray-700 border-gray-600' : 'bg-blue-50 border-blue-200'} border`}>
+              <h3 className={`text-lg font-medium ${colors.text} mb-3 flex items-center`}>
+                <Calendar className="mr-2 h-5 w-5" />
+                Schedule Details
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className={`block text-sm font-medium ${colors.text} mb-2`}>Interview Date</label>
+                  <div className="relative">
+                    <Calendar className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${colors.textMuted}`} size={16} />
+                    <input
+                      type="date"
+                      value={interviewDetails.date}
+                      onChange={(e) => setInterviewDetails({ ...interviewDetails, date: e.target.value })}
+                      className={`w-full pl-10 pr-3 py-2.5 border ${colors.border} ${colors.bgCard} ${colors.text} rounded-lg focus:ring-2 ${isDark ? 'focus:ring-purple-500 focus:border-purple-500' : 'focus:ring-purple-600 focus:border-purple-600'} transition-all duration-200`}
+                      required
+                      disabled={interviewSubmitting}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className={`block text-sm font-medium ${colors.text} mb-2`}>Interview Time</label>
+                  <div className="relative">
+                    <Clock className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${colors.textMuted}`} size={16} />
+                    <input
+                      type="time"
+                      value={interviewDetails.time}
+                      onChange={(e) => setInterviewDetails({ ...interviewDetails, time: e.target.value })}
+                      className={`w-full pl-10 pr-3 py-2.5 border ${colors.border} ${colors.bgCard} ${colors.text} rounded-lg focus:ring-2 ${isDark ? 'focus:ring-purple-500 focus:border-purple-500' : 'focus:ring-purple-600 focus:border-purple-600'} transition-all duration-200`}
+                      required
+                      disabled={interviewSubmitting}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className={`block text-sm font-medium ${colors.text} mb-2`}>Duration (minutes)</label>
+                  <select
+                    value={interviewDetails.duration}
+                    onChange={(e) => setInterviewDetails({ ...interviewDetails, duration: parseInt(e.target.value) })}
+                    className={`w-full px-3 py-2.5 border ${colors.border} ${colors.bgCard} ${colors.text} rounded-lg focus:ring-2 ${isDark ? 'focus:ring-purple-500 focus:border-purple-500' : 'focus:ring-purple-600 focus:border-purple-600'} transition-all duration-200`}
+                    disabled={interviewSubmitting}
+                  >
+                    <option value={15}>15 minutes</option>
+                    <option value={30}>30 minutes</option>
+                    <option value={45}>45 minutes</option>
+                    <option value={60}>1 hour</option>
+                    <option value={90}>1.5 hours</option>
+                    <option value={120}>2 hours</option>
+                  </select>
                 </div>
               </div>
+            </div>
+
+            {/* Interview Topics Section */}
+            <div className={`p-4 rounded-lg ${isDark ? 'bg-gray-700 border-gray-600' : 'bg-green-50 border-green-200'} border`}>
+              <h3 className={`text-lg font-medium ${colors.text} mb-3 flex items-center`}>
+                <svg className="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Interview Topics & Focus Areas
+              </h3>
               <div>
-                <label className={`block text-sm font-medium ${colors.text} mb-1`}>Time</label>
-                <div className="relative">
-                  <Clock className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${colors.textMuted}`} size={16} />
-                  <input
-                    type="time"
-                    value={interviewDetails.time}
-                    onChange={(e) => setInterviewDetails({ ...interviewDetails, time: e.target.value })}
-                    className={`w-full pl-10 p-2 border ${colors.border} ${colors.bgCard} ${colors.text} rounded-lg focus:ring-2 ${isDark ? 'focus:ring-purple-500' : 'focus:ring-purple-600'} transition-colors duration-200`}
-                  />
-                </div>
+                <label className={`block text-sm font-medium ${colors.text} mb-2`}>
+                  Topics to Cover During Interview
+                </label>
+                <textarea
+                  value={interviewDetails.document}
+                  onChange={(e) => setInterviewDetails({ ...interviewDetails, document: e.target.value })}
+                  className={`w-full p-3 border ${colors.border} ${colors.bgCard} ${colors.text} rounded-lg focus:ring-2 ${isDark ? 'focus:ring-purple-500 focus:border-purple-500' : 'focus:ring-purple-600 focus:border-purple-600'} transition-all duration-200 resize-none`}
+                  rows={3}
+                  disabled={interviewSubmitting}
+                />
+                <p className={`text-sm ${colors.textMuted} mt-2`}>
+                  Provide detailed topics to ensure the AI interviewer asks relevant questions.
+                </p>
               </div>
             </div>
-            <div>
-              <label className={`block text-sm font-medium ${colors.text} mb-1`}>Duration (minutes)</label>
-              <input
-                type="number"
-                value={interviewDetails.duration}
-                onChange={(e) => setInterviewDetails({ ...interviewDetails, duration: parseInt(e.target.value) })}
-                className={`w-full p-2 border ${colors.border} ${colors.bgCard} ${colors.text} rounded-lg focus:ring-2 ${isDark ? 'focus:ring-purple-500' : 'focus:ring-purple-600'} transition-colors duration-200`}
-                min={15}
-                max={120}
-                step={5}
-              />
+
+            {/* Questions Section */}
+            <div className={`p-4 rounded-lg ${isDark ? 'bg-gray-700 border-gray-600' : 'bg-purple-50 border-purple-200'} border`}>
+              <h3 className={`text-lg font-medium ${colors.text} mb-3 flex items-center`}>
+                <svg className="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Specific Questions (Optional)
+              </h3>
+              <div>
+                <label className={`block text-sm font-medium ${colors.text} mb-2`}>
+                  Custom Questions for the Interview
+                </label>
+                <textarea
+                  value={interviewDetails.questions}
+                  onChange={(e) => setInterviewDetails({ ...interviewDetails, questions: e.target.value })}
+                  className={`w-full p-3 border ${colors.border} ${colors.bgCard} ${colors.text} rounded-lg focus:ring-2 ${isDark ? 'focus:ring-purple-500 focus:border-purple-500' : 'focus:ring-purple-600 focus:border-purple-600'} transition-all duration-200 resize-none`}
+                  rows={3}
+                  disabled={interviewSubmitting}
+                />
+                <p className={`text-sm ${colors.textMuted} mt-2`}>
+                  Leave empty to let the AI generate questions based on the job requirements and topics above.
+                </p>
+              </div>
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="pt-6">
             <button
               onClick={() => setShowInterviewModal(false)}
-              className={`px-4 py-2 ${isDark ? 'bg-gray-700 hover:bg-gray-600 text-gray-200' : 'bg-gray-100 hover:bg-gray-200 text-gray-800'} rounded-lg transition-colors duration-200`}
+              className={`px-6 py-2.5 ${isDark ? 'bg-gray-700 hover:bg-gray-600 text-gray-200 border-gray-600' : 'bg-gray-100 hover:bg-gray-200 text-gray-800 border-gray-200'} border rounded-lg transition-all duration-200 font-medium`}
+              disabled={interviewSubmitting}
             >
               Cancel
             </button>
             <button
               onClick={handleInterviewSubmit}
-              className={`px-4 py-2 ${isDark ? 'bg-blue-700 hover:bg-blue-600' : 'bg-blue-600 hover:bg-blue-700'} text-white rounded-lg transition-colors duration-200`}
+              disabled={!interviewDetails.date || !interviewDetails.time || interviewSubmitting}
+              className={`px-6 py-2.5 ${
+                (!interviewDetails.date || !interviewDetails.time)
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : isDark
+                    ? 'bg-blue-700 hover:bg-blue-600'
+                    : 'bg-blue-600 hover:bg-blue-700'
+              } text-white rounded-lg transition-all duration-200 font-medium flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed ${interviewSubmitting ? 'animate-pulse' : ''}`}
             >
-              Schedule Interview
+              {interviewSubmitSuccess ? (
+                <>
+                  <Check className="h-4 w-4" />
+                  Scheduled
+                </>
+              ) : interviewSubmitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Scheduling...
+                </>
+              ) : (
+                <>
+                  <Calendar className="h-4 w-4" />
+                  {application?.interviewRoomId ? 'Reschedule Interview' : 'Schedule Interview'}
+                </>
+              )}
             </button>
           </DialogFooter>
         </DialogContent>

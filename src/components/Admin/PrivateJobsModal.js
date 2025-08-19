@@ -5,6 +5,7 @@ import {
   MapPin, DollarSign, Calendar, Users, Eye
 } from 'lucide-react';
 import Cookies from 'js-cookie';
+import { toast } from 'react-toastify';
 
 const PrivateJobsModal = ({ 
   isOpen, 
@@ -126,13 +127,13 @@ const PrivateJobsModal = ({
       
       if (data.success) {
         setAssignedJobs(prev => [...prev, jobId]);
-        alert(`Job access granted to ${partnerName} candidates!`);
+        toast.success(`Job access granted to ${partnerName} candidates!`);
       } else {
-        alert(data.message || 'Error assigning job');
+        toast.error(data.message || 'Error assigning job');
       }
     } catch (error) {
       console.error('Error assigning job:', error);
-      alert('Error assigning job. Please try again.');
+      toast.error('Error assigning job. Please try again.');
     } finally {
       setAssigning(prev => ({ ...prev, [jobId]: false }));
     }
@@ -170,13 +171,13 @@ const PrivateJobsModal = ({
       
       if (data.success) {
         setAssignedJobs(prev => prev.filter(id => id !== jobId));
-        alert('Job access revoked successfully!');
+        toast.success('Job access revoked successfully!');
       } else {
-        alert(data.message || 'Error revoking access');
+        toast.error(data.message || 'Error revoking access');
       }
     } catch (error) {
       console.error('Error revoking access:', error);
-      alert('Error revoking access. Please try again.');
+      toast.error('Error revoking access. Please try again.');
     } finally {
       setAssigning(prev => ({ ...prev, [jobId]: false }));
     }

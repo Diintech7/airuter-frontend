@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 const InterviewPrep = () => {
   const { roomId } = useParams();
@@ -38,7 +39,7 @@ const InterviewPrep = () => {
       return true;
     } catch (error) {
       console.error('Error requesting permissions:', error);
-      alert('Camera and microphone permissions are required for the interview.');
+      toast.error('Camera and microphone permissions are required for the interview.');
       return false;
     }
   };

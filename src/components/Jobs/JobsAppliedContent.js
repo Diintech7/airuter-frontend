@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Clock, 
   Building2, 
@@ -27,6 +28,21 @@ import { motion, AnimatePresence } from 'framer-motion';
 const JobsAppliedContent = () => {
   const { theme } = useTheme();
   const { isDark, colors, styles, cx } = useThemeStyles();
+  const navigate = useNavigate();
+
+  const resolveJobId = (job) => {
+    if (!job) return null;
+    if (typeof job === 'string') return job;
+    if (typeof job === 'object') {
+      if (typeof job._id === 'string') return job._id;
+      if (job._id && typeof job._id === 'object') {
+        if (typeof job._id.$oid === 'string') return job._id.$oid;
+        if (typeof job._id.toString === 'function') return job._id.toString();
+      }
+      if (typeof job.id === 'string') return job.id;
+    }
+    return null;
+  };
   const [applications, setApplications] = useState([]);
   const [stats, setStats] = useState({});
   const [loading, setLoading] = useState(true);
@@ -587,7 +603,9 @@ const JobsAppliedContent = () => {
                       isDark ? "bg-gray-800/60" : "bg-gray-100"
                     )}>
                       <Calendar className="w-4 h-4 mr-1" />
-                      <span>Applied {new Date(application.createdAt).toLocaleDateString()}</span>
+                      <span>
+                        Applied {new Date(application.createdAt).toLocaleString()}
+                      </span>
                     </div>
                     {application.job?.type && (
                       <div className={cx(
@@ -658,7 +676,20 @@ const JobsAppliedContent = () => {
                     )}
                   </AnimatePresence>
 
-                  <div className={cx("mt-6 pt-5 border-t flex justify-end", colors.border)}>
+                  <div className={cx("mt-6 pt-5 border-t flex justify-between", colors.border)}>
+                    {(() => { const jid = application.jobId || resolveJobId(application.job); return (
+                    <button
+                      onClick={() => jid && navigate(`/detail/${encodeURIComponent(jid)}`)}
+                      disabled={!jid}
+                      className={cx(
+                        "px-4 py-2 rounded-full font-medium flex items-center gap-2 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed",
+                        isDark ? 
+                          "bg-purple-800 hover:bg-purple-700 text-white" : 
+                          "bg-purple-600 hover:bg-purple-700 text-white shadow-sm hover:shadow-md"
+                      )}
+                    >
+                      Go to Job Details
+                    </button> ); })()}
                     <button 
                       onClick={() => toggleDetails(application._id)}
                       className={cx(

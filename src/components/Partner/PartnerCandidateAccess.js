@@ -7,6 +7,7 @@ import {
 import Cookies from 'js-cookie';
 import { useTheme } from '../../context/ThemeContext';
 import { getThemeClasses } from '../utils/themeUtils';
+import { toast } from 'react-toastify';
 
 const PartnerCandidateAccess = () => {
   const { theme } = useTheme();
@@ -94,13 +95,13 @@ const PartnerCandidateAccess = () => {
         setEditingCandidate(null);
         resetForm();
         fetchCandidates();
-        alert(editingCandidate ? 'Candidate updated!' : 'Candidate added!');
+        toast.success(editingCandidate ? 'Candidate updated!' : 'Candidate added!');
       } else {
-        alert(data.message || 'Error saving candidate');
+        toast.error(data.message || 'Error saving candidate');
       }
     } catch (error) {
       console.error('Error saving candidate:', error);
-      alert('Error saving candidate');
+      toast.error('Error saving candidate');
     }
   };
 
@@ -152,7 +153,7 @@ const PartnerCandidateAccess = () => {
       const data = await response.json();
       if (data.success) {
         fetchCandidates();
-        alert('Candidate deleted!');
+        toast.success('Candidate deleted!');
       }
     } catch (error) {
       console.error('Error deleting candidate:', error);
@@ -182,13 +183,13 @@ const PartnerCandidateAccess = () => {
       const data = await response.json();
       if (data.success) {
         fetchCandidates();
-        alert(`Candidate ${action}d successfully!`);
+        toast.success(`Candidate ${action}d successfully!`);
       } else {
-        alert(data.message || `Failed to ${action} candidate`);
+        toast.error(data.message || `Failed to ${action} candidate`);
       }
     } catch (error) {
       console.error(`Error ${action}ing candidate:`, error);
-      alert(`Error ${action}ing candidate`);
+      toast.error(`Error ${action}ing candidate`);
     }
   };
 
@@ -207,13 +208,13 @@ const PartnerCandidateAccess = () => {
 
       const data = await response.json();
       if (data.success) {
-        alert('Credentials resent successfully!');
+        toast.success('Credentials resent successfully!');
       } else {
-        alert('Failed to resend credentials');
+        toast.error('Failed to resend credentials');
       }
     } catch (error) {
       console.error('Error resending credentials:', error);
-      alert('Error resending credentials');
+      toast.error('Error resending credentials');
     }
   };
 

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { toast } from 'react-toastify';
 const InterviewMediaControls = {
   requestPermissions: async (localVideoRef) => {
     try {
@@ -7,7 +8,7 @@ const InterviewMediaControls = {
         console.error('Video element reference not found');
         await new Promise(resolve => setTimeout(resolve, 500));
         if (!localVideoRef.current) {
-          alert('Video element not found. Please refresh and try again.');
+          toast.error('Video element not found. Please refresh and try again.');
           return false;
         }
       }
@@ -21,7 +22,7 @@ const InterviewMediaControls = {
         console.log('Video playback started');
       } catch (playError) {
         console.error('Error playing video:', playError);
-        alert('Please click OK to start your camera');
+        toast.info('Please click OK to start your camera');
         try {
           await localVideoRef.current.play();
         } catch (e) {
@@ -32,7 +33,7 @@ const InterviewMediaControls = {
       return true;
     } catch (error) {
       console.error('Error requesting permissions:', error);
-      alert('Camera access was denied. Please grant camera and microphone permissions.');
+      toast.error('Camera access was denied. Please grant camera and microphone permissions.');
       return false;
     }
   },
@@ -42,13 +43,13 @@ const InterviewMediaControls = {
       const hasCamera = devices.some(device => device.kind === 'videoinput');
       const hasMicrophone = devices.some(device => device.kind === 'audioinput');
       if (!hasCamera || !hasMicrophone) {
-        alert('Your device does not have a camera or microphone. Please ensure your device has the necessary hardware.');
+        toast.error('Your device does not have a camera or microphone. Please ensure your device has the necessary hardware.');
         return false;
       }
       return true;
     } catch (error) {
       console.error('Error enumerating devices:', error);
-      alert('An error occurred while checking for camera and microphone availability.');
+      toast.error('An error occurred while checking for camera and microphone availability.');
       return false;
     }
   },
@@ -304,11 +305,11 @@ startScreenRecording: async (
   } catch (error) {
     console.error('Error starting screen recording:', error);
     if (error.name === 'NotAllowedError') {
-      alert('Screen recording permission was denied. Please grant permissions and try again.');
+      toast.error('Screen recording permission was denied. Please grant permissions and try again.');
     } else if (error.name === 'NotReadableError') {
-      alert('Could not access screen or microphone. Another application might be using them.');
+      toast.error('Could not access screen or microphone. Another application might be using them.');
     } else {
-      alert('An error occurred while trying to start screen recording: ' + error.message);
+      toast.error('An error occurred while trying to start screen recording: ' + error.message);
     }
     return null;
   }

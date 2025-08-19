@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import axios from "axios"
 import { Chart, registerables } from "chart.js"
+import { toast } from 'react-toastify'
 import { useHMSActions, useHMSStore, selectIsConnectedToRoom, selectLocalPeer, selectPeers } from "@100mslive/react-sdk"
 import InterviewStart from "./components/InterviewStart"
 import InterviewSession from "./components/InterviewSession"
@@ -96,8 +97,8 @@ const InterviewRoom = () => {
 
   useEffect(() => {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      alert(
-        "Your browser does not support the required features for this interview. Please use a modern browser like Chrome, Firefox, or Edge.",
+      toast.error(
+        'Your browser does not support the required features for this interview. Please use a modern browser like Chrome, Firefox, or Edge.',
       )
     }
   }, [])
@@ -197,14 +198,14 @@ const InterviewRoom = () => {
       try {
         const screenStream = await startScreenRecording()
         if (!screenStream) {
-          alert("Screen sharing is required to start the interview. Please allow screen sharing and try again.")
+          toast.error('Screen sharing is required to start the interview. Please allow screen sharing and try again.')
           setInterviewStarted(false)
           return
         }
         console.log("Screen sharing enabled successfully")
       } catch (error) {
         console.error("Screen sharing failed:", error)
-        alert("Screen sharing is required to start the interview. Please allow screen sharing and try again.")
+        toast.error('Screen sharing is required to start the interview. Please allow screen sharing and try again.')
         setInterviewStarted(false)
         return
       }

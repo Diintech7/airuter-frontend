@@ -19,7 +19,8 @@ import {
   Minimize2,
   Edit,
 } from "lucide-react"
-import { useNavigate, useLocation } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
+import { toast } from 'react-toastify'
 import Cookies from "js-cookie"
 import { useTheme } from "../../context/ThemeContext"
 
@@ -45,14 +46,14 @@ const JobDetail = () => {
   const [showCoverLetterFullscreen, setShowCoverLetterFullscreen] = useState(false)
   const [extractingCoverLetter, setExtractingCoverLetter] = useState(false)
   const [coverLetterFile, setCoverLetterFile] = useState(null)
+  const [alreadyAppliedAt, setAlreadyAppliedAt] = useState(null)
   // Add state for temporary cover letter content to fix typing performance
   const [tempCoverLetter, setTempCoverLetter] = useState("")
 
   const textareaRef = useRef(null)
 
   const navigate = useNavigate()
-  const location = useLocation()
-  const jobId = location.pathname.split("/").pop()
+  const { jobId } = useParams()
   const { theme } = useTheme()
   const isDark = theme === "dark"
 
@@ -101,6 +102,24 @@ const JobDetail = () => {
 
     fetchJobDetail()
     fetchUserProfile()
+    // Check if current user already applied to this job
+    const checkApplied = async () => {
+      try {
+        const token = getAuthToken()
+        if (!token) return
+        const res = await fetch('https://airuter-backend.onrender.com/api/jobs-applied/my-applications', {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        if (!res.ok) return
+        const data = await res.json()
+        const found = (data.applications || []).find(app => {
+          const jid = app.jobId || app.job?._id || app.job?.id || (typeof app.job === 'string' ? app.job : null)
+          return jid === jobId
+        })
+        if (found) setAlreadyAppliedAt(found.createdAt)
+      } catch (_) {}
+    }
+    checkApplied()
   }, [jobId])
 
   // Initialize temp cover letter when modal opens
@@ -320,7 +339,7 @@ const JobDetail = () => {
       await new Promise((resolve) => setTimeout(resolve, 500))
 
       setShowApplicationForm(false)
-      alert("Application submitted successfully!")
+      toast.success('Application submitted successfully! Go to Applied Jobs for details.')
     } catch (err) {
       setApplicationError(err.message)
       setSubmissionStage("idle")
@@ -466,6 +485,22 @@ const JobDetail = () => {
           <ArrowLeft size={20} className="mr-2" />
           <span className="font-medium">Back to Jobs</span>
         </button>
+
+        {alreadyAppliedAt && (
+          <div className={`mb-6 rounded-xl p-4 ${isDark ? 'bg-green-900/40 border border-green-800 text-green-200' : 'bg-green-50 border border-green-200 text-green-800'}`}>
+            <div className="flex items-center justify-between">
+              <div className="font-medium">
+                You already applied to this job on {new Date(alreadyAppliedAt).toLocaleString()}.
+              </div>
+              <button
+                onClick={() => navigate('/jobs-applied')}
+                className={`${isDark ? 'bg-green-800 hover:bg-green-700 text-white' : 'bg-green-600 hover:bg-green-700 text-white'} px-4 py-2 rounded-lg transition-colors`}
+              >
+                Go to Applied Jobs
+              </button>
+            </div>
+          </div>
+        )}
 
         {job && (
           <div className="grid md:grid-cols-3 gap-8">

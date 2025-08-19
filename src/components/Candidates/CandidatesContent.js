@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Download, Calendar, Clock } from 'lucide-react';
+import { Search, Download, Calendar, Clock, Loader2, Check } from 'lucide-react';
+import { toast } from 'react-toastify';
 import Cookies from 'js-cookie';
 import { Card, CardHeader, CardTitle, CardContent } from '../UI/Card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../UI/Dialog';
@@ -37,6 +38,8 @@ const CandidatesContent = () => {
     duration: 30 
   });
   const [interviewDataMap, setInterviewDataMap] = useState({});
+  const [interviewSubmitting, setInterviewSubmitting] = useState(false);
+  const [interviewSubmitSuccess, setInterviewSubmitSuccess] = useState(false);
   const navigate = useNavigate();
   
   useEffect(() => {
@@ -244,8 +247,10 @@ const CandidatesContent = () => {
   
   const handleInterviewSubmit = async () => {
     try {
+      setInterviewSubmitting(true);
       const token = Cookies.get('usertoken');
-      const response = await fetch('https://airuter-backend.onrender.com/api/interview/schedule', {
+      const endpoint = selectedApplication?.interviewRoomId ? 'reschedule' : 'schedule';
+      const response = await fetch(`https://airuter-backend.onrender.com/api/interview/${endpoint}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -261,14 +266,21 @@ const CandidatesContent = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to schedule interview');
+        throw new Error(`Failed to ${selectedApplication?.interviewRoomId ? 'reschedule' : 'schedule'} interview`);
       }
       await response.json();
-      alert('Interview scheduled successfully!');
-      setShowInterviewModal(false);
-      await fetchApplications();
+      setInterviewSubmitSuccess(true);
+      toast.success('Interview scheduled successfully!');
+      setTimeout(async () => {
+        setShowInterviewModal(false);
+        setInterviewSubmitSuccess(false);
+        await fetchApplications();
+      }, 700);
     } catch (err) {
       setError(err.message);
+      toast.error(err.message || 'Failed to schedule interview');
+    } finally {
+      setInterviewSubmitting(false);
     }
   };
   
@@ -506,8 +518,24 @@ const CandidatesContent = () => {
                                 View Results
                               </button>
                             ) : (
-                              <div className={`px-3 py-1.5 text-center ${isDark ? 'bg-yellow-900 text-yellow-200' : 'bg-yellow-100 text-yellow-800'} text-sm rounded-lg`}>
-                                Scheduled
+                              <div className="flex space-x-2">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    const existing = interviewDataMap[application._id];
+                                    setInterviewDetails({
+                                      document: existing?.document || '',
+                                      date: existing?.date || '',
+                                      time: existing?.time || '',
+                                      duration: existing?.duration || 30,
+                                    });
+                                    setSelectedApplication(application);
+                                    setShowInterviewModal(true);
+                                  }}
+                                  className={`px-3 py-1.5 ${isDark ? 'bg-yellow-700 hover:bg-yellow-600' : 'bg-yellow-500 hover:bg-yellow-600'} text-white text-sm rounded-lg transition-colors duration-200`}
+                                >
+                                  Reschedule
+                                </button>
                               </div>
                             )
                           )}
@@ -531,7 +559,9 @@ const CandidatesContent = () => {
       <Dialog open={showInterviewModal} onOpenChange={setShowInterviewModal}>
   <DialogContent className={`${isDark ? 'bg-gray-800 text-white border-gray-700' : 'bg-white text-gray-900 border-gray-200'} max-w-2xl`}>
     <DialogHeader>
-      <DialogTitle className={`${colors.text} text-xl font-semibold`}>Schedule AI Mock Interview</DialogTitle>
+      <DialogTitle className={`${colors.text} text-xl font-semibold`}>
+        {selectedApplication?.interviewRoomId ? 'Reschedule AI Interview' : 'Schedule AI Interview'}
+      </DialogTitle>
     </DialogHeader>
     
     <div className="space-y-6">
@@ -552,6 +582,7 @@ const CandidatesContent = () => {
                 onChange={(e) => setInterviewDetails({ ...interviewDetails, date: e.target.value })}
                 className={`w-full pl-10 pr-3 py-2.5 border ${colors.border} ${colors.bgCard} ${colors.text} rounded-lg focus:ring-2 ${isDark ? 'focus:ring-purple-500 focus:border-purple-500' : 'focus:ring-purple-600 focus:border-purple-600'} transition-all duration-200`}
                 required
+                disabled={interviewSubmitting}
               />
             </div>
           </div>
@@ -565,6 +596,7 @@ const CandidatesContent = () => {
                 onChange={(e) => setInterviewDetails({ ...interviewDetails, time: e.target.value })}
                 className={`w-full pl-10 pr-3 py-2.5 border ${colors.border} ${colors.bgCard} ${colors.text} rounded-lg focus:ring-2 ${isDark ? 'focus:ring-purple-500 focus:border-purple-500' : 'focus:ring-purple-600 focus:border-purple-600'} transition-all duration-200`}
                 required
+                disabled={interviewSubmitting}
               />
             </div>
           </div>
@@ -574,6 +606,7 @@ const CandidatesContent = () => {
               value={interviewDetails.duration}
               onChange={(e) => setInterviewDetails({ ...interviewDetails, duration: parseInt(e.target.value) })}
               className={`w-full px-3 py-2.5 border ${colors.border} ${colors.bgCard} ${colors.text} rounded-lg focus:ring-2 ${isDark ? 'focus:ring-purple-500 focus:border-purple-500' : 'focus:ring-purple-600 focus:border-purple-600'} transition-all duration-200`}
+              disabled={interviewSubmitting}
             >
               <option value={15}>15 minutes</option>
               <option value={30}>30 minutes</option>
@@ -603,6 +636,7 @@ const CandidatesContent = () => {
             onChange={(e) => setInterviewDetails({ ...interviewDetails, document: e.target.value })}
             className={`w-full p-3 border ${colors.border} ${colors.bgCard} ${colors.text} rounded-lg focus:ring-2 ${isDark ? 'focus:ring-purple-500 focus:border-purple-500' : 'focus:ring-purple-600 focus:border-purple-600'} transition-all duration-200 resize-none`}
             rows={3}
+            disabled={interviewSubmitting}
           />
           <p className={`text-sm ${colors.textMuted} mt-2`}>
             Provide detailed topics to ensure the AI interviewer asks relevant questions.
@@ -627,6 +661,7 @@ const CandidatesContent = () => {
             onChange={(e) => setInterviewDetails({ ...interviewDetails, questions: e.target.value })}
             className={`w-full p-3 border ${colors.border} ${colors.bgCard} ${colors.text} rounded-lg focus:ring-2 ${isDark ? 'focus:ring-purple-500 focus:border-purple-500' : 'focus:ring-purple-600 focus:border-purple-600'} transition-all duration-200 resize-none`}
             rows={3}
+            disabled={interviewSubmitting}
           />
           <p className={`text-sm ${colors.textMuted} mt-2`}>
             Leave empty to let the AI generate questions based on the job requirements and topics above.
@@ -639,22 +674,37 @@ const CandidatesContent = () => {
       <button
         onClick={() => setShowInterviewModal(false)}
         className={`px-6 py-2.5 ${isDark ? 'bg-gray-700 hover:bg-gray-600 text-gray-200 border-gray-600' : 'bg-gray-100 hover:bg-gray-200 text-gray-800 border-gray-200'} border rounded-lg transition-all duration-200 font-medium`}
+        disabled={interviewSubmitting}
       >
         Cancel
       </button>
       <button
         onClick={handleInterviewSubmit}
-        disabled={!interviewDetails.date || !interviewDetails.time}
+        disabled={!interviewDetails.date || !interviewDetails.time || interviewSubmitting}
         className={`px-6 py-2.5 ${
           (!interviewDetails.date || !interviewDetails.time) 
             ? 'bg-gray-400 cursor-not-allowed' 
             : isDark 
               ? 'bg-blue-700 hover:bg-blue-600' 
               : 'bg-blue-600 hover:bg-blue-700'
-        } text-white rounded-lg transition-all duration-200 font-medium flex items-center`}
+        } text-white rounded-lg transition-all duration-200 font-medium flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed ${interviewSubmitting ? 'animate-pulse' : ''}`}
       >
-        <Calendar className="mr-2 h-4 w-4" />
-        Schedule Interview
+        {interviewSubmitSuccess ? (
+          <>
+            <Check className="h-4 w-4" />
+            Scheduled
+          </>
+        ) : interviewSubmitting ? (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Scheduling...
+          </>
+        ) : (
+          <>
+            <Calendar className="h-4 w-4" />
+            {selectedApplication?.interviewRoomId ? 'Reschedule Interview' : 'Schedule Interview'}
+          </>
+        )}
       </button>
     </DialogFooter>
   </DialogContent>

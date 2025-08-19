@@ -5,13 +5,15 @@ export const Dialog = ({ open, onOpenChange, children }) => {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
       <div
         className="fixed inset-0 bg-black bg-opacity-50"
         onClick={() => onOpenChange(false)}
       />
-      <div className="relative z-50 w-full max-w-2xl rounded-lg shadow-xl">
-        {children}
+      <div className="relative z-50 flex min-h-full items-center justify-center p-4 sm:p-6">
+        <div className="w-full max-w-full sm:max-w-2xl rounded-lg shadow-xl max-h-[90vh] overflow-y-auto">
+          {children}
+        </div>
       </div>
     </div>
   );

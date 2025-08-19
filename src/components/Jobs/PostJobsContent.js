@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, X, AlertCircle, CheckCircle2, Loader2, ArrowRight, Edit2, ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import { Plus, X, AlertCircle, CheckCircle2, Loader2, ArrowRight, Edit2, ArrowLeft, Eye, EyeOff, RefreshCw } from 'lucide-react';
 import Cookies from 'js-cookie';
 import { useThemeStyles } from '../hooks/useThemeStyles';
 import { Link } from 'react-router-dom';
@@ -8,7 +8,12 @@ const PostJobsContent = () => {
   const { isDark, colors, styles } = useThemeStyles();
   const [currentStep, setCurrentStep] = useState(1);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [jobForm, setJobForm] = useState({
+  const getDefaultDeadline = () => {
+    const d = new Date();
+    d.setMonth(d.getMonth() + 1);
+    return d.toISOString().split('T')[0];
+  };
+  const buildInitialJobForm = () => ({
     title: '',
     company: '',
     logo: '',
@@ -21,14 +26,16 @@ const PostJobsContent = () => {
     salary: { min: 0, max: 0, currency: 'INR' },
     skills: [''],
     benefits: [''],
-    applicationDeadline: '',
+    applicationDeadline: getDefaultDeadline(),
     status: 'active',
     visibility: 'public'
   });
+  const [jobForm, setJobForm] = useState(buildInitialJobForm());
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
   const [companyProfile, setCompanyProfile] = useState(null);
+  const [regenLoading, setRegenLoading] = useState({});
 
   useEffect(() => {
     fetchCompanyProfile();
@@ -160,27 +167,59 @@ const PostJobsContent = () => {
       setError('');
       
       // Reset form including logo
-      setJobForm({
-        title: '',
-        company: '',
-        logo: '',
-        description: '',
-        requirements: [''],
-        responsibilities: [''],
-        location: '',
-        type: 'full-time',
-        experience: { min: 0, max: 0 },
-        salary: { min: 0, max: 0, currency: 'INR' },
-        skills: [''],
-        benefits: [''],
-        applicationDeadline: '',
-        status: 'active',
-        visibility: 'public'
-      });
+      setJobForm(buildInitialJobForm());
       setCurrentStep(1);
     } catch (err) {
       setError(err.message || 'Failed to post job');
       setSuccess('');
+    }
+  };
+
+  const regenerateSection = async (section) => {
+    try {
+      // Ensure basic info exists
+      if (!jobForm.title || !jobForm.company || !jobForm.type || !jobForm.location) {
+        setError('Please complete Basic Info (Step 1) before regenerating.');
+        return;
+      }
+      setError('');
+      setRegenLoading(prev => ({ ...prev, [section]: true }));
+      const token = Cookies.get('usertoken');
+      if (!token) throw new Error('Authentication token not found. Please log in again.');
+      const response = await fetch('https://airuter-backend.onrender.com/api/jobs/generate-details', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          title: jobForm.title,
+          company: jobForm.company,
+          type: jobForm.type,
+          location: jobForm.location,
+          currency: 'INR'
+        })
+      });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || 'Failed to regenerate content');
+      }
+      const data = await response.json();
+      setJobForm(prev => {
+        const updated = { ...prev };
+        if (section === 'description' && data.description) updated.description = data.description;
+        if (section === 'requirements' && Array.isArray(data.requirements)) updated.requirements = data.requirements;
+        if (section === 'responsibilities' && Array.isArray(data.responsibilities)) updated.responsibilities = data.responsibilities;
+        if (section === 'skills' && Array.isArray(data.skills)) updated.skills = data.skills;
+        if (section === 'benefits' && Array.isArray(data.benefits)) updated.benefits = data.benefits;
+        if (section === 'experience' && data.experience) updated.experience = data.experience;
+        if (section === 'salary' && data.salary) updated.salary = { min: data.salary.min || 0, max: data.salary.max || 0, currency: 'INR' };
+        return updated;
+      });
+    } catch (err) {
+      setError(err.message || 'Failed to regenerate content');
+    } finally {
+      setRegenLoading(prev => ({ ...prev, [section]: false }));
     }
   };
 
@@ -394,7 +433,18 @@ const PostJobsContent = () => {
       <div className="space-y-2">
         <div className="flex justify-between items-center">
           <label className={`text-sm font-semibold ${colors.textPrimary}`}>Description</label>
-          <span className="text-xs text-purple-600">AI Generated</span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-purple-600">AI Generated</span>
+            <button
+              type="button"
+              onClick={() => regenerateSection('description')}
+              disabled={regenLoading.description || isGenerating}
+              className={`inline-flex items-center px-2 py-1 text-xs rounded-md ${isDark ? 'bg-purple-900/30 text-purple-300 hover:bg-purple-900/50' : 'bg-purple-50 text-purple-700 hover:bg-purple-100'} ${styles.transition}`}
+            >
+              {regenLoading.description ? <Loader2 size={14} className="mr-1 animate-spin" /> : <RefreshCw size={14} className="mr-1" />}
+              Regenerate
+            </button>
+          </div>
         </div>
         <textarea
           value={jobForm.description}
@@ -411,7 +461,18 @@ const PostJobsContent = () => {
             <label className={`block text-sm font-semibold ${colors.textPrimary} capitalize`}>
               {field}
             </label>
-            <span className="text-xs text-purple-600">AI Generated</span>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-purple-600">AI Generated</span>
+              <button
+                type="button"
+                onClick={() => regenerateSection(field)}
+                disabled={regenLoading[field] || isGenerating}
+                className={`inline-flex items-center px-2 py-1 text-xs rounded-md ${isDark ? 'bg-purple-900/30 text-purple-300 hover:bg-purple-900/50' : 'bg-purple-50 text-purple-700 hover:bg-purple-100'} ${styles.transition}`}
+              >
+                {regenLoading[field] ? <Loader2 size={14} className="mr-1 animate-spin" /> : <RefreshCw size={14} className="mr-1" />}
+                Regenerate
+              </button>
+            </div>
           </div>
           <div className="space-y-3">
             {jobForm[field].map((item, index) => (
@@ -471,7 +532,18 @@ const PostJobsContent = () => {
         <div>
           <div className="flex justify-between items-center mb-4">
             <h3 className={`text-sm font-semibold ${colors.textPrimary}`}>Experience Range</h3>
-            <span className="text-xs text-purple-600">AI Generated</span>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-purple-600">AI Generated</span>
+              <button
+                type="button"
+                onClick={() => regenerateSection('experience')}
+                disabled={regenLoading.experience || isGenerating}
+                className={`inline-flex items-center px-2 py-1 text-xs rounded-md ${isDark ? 'bg-purple-900/30 text-purple-300 hover:bg-purple-900/50' : 'bg-purple-50 text-purple-700 hover:bg-purple-100'} ${styles.transition}`}
+              >
+                {regenLoading.experience ? <Loader2 size={14} className="mr-1 animate-spin" /> : <RefreshCw size={14} className="mr-1" />}
+                Regenerate
+              </button>
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -502,7 +574,18 @@ const PostJobsContent = () => {
         <div>
           <div className="flex justify-between items-center mb-4">
             <h3 className={`text-sm font-semibold ${colors.textPrimary}`}>Salary Range (INR)</h3>
-            <span className="text-xs text-purple-600">AI Generated</span>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-purple-600">AI Generated</span>
+              <button
+                type="button"
+                onClick={() => regenerateSection('salary')}
+                disabled={regenLoading.salary || isGenerating}
+                className={`inline-flex items-center px-2 py-1 text-xs rounded-md ${isDark ? 'bg-purple-900/30 text-purple-300 hover:bg-purple-900/50' : 'bg-purple-50 text-purple-700 hover:bg-purple-100'} ${styles.transition}`}
+              >
+                {regenLoading.salary ? <Loader2 size={14} className="mr-1 animate-spin" /> : <RefreshCw size={14} className="mr-1" />}
+                Regenerate
+              </button>
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -624,13 +707,39 @@ const PostJobsContent = () => {
         )}
 
         {success && (
-          <div className={`flex items-center p-5 mb-6 rounded-lg shadow-md ${isDark ? 'bg-gradient-to-r from-green-900/50 to-emerald-900/50 border border-green-700' : 'bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200'} animate-fadeIn animate-pulse`}>
+          <div className={`flex items-center p-5 mb-6 rounded-lg shadow-md ${isDark ? 'bg-gradient-to-r from-green-900/50 to-emerald-900/50 border border-green-700' : 'bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200'} animate-fadeIn`}>
             <div className={`mr-4 p-2 rounded-full ${isDark ? 'bg-green-800' : 'bg-green-100'}`}>
               <CheckCircle2 size={24} className={`${isDark ? 'text-green-400' : 'text-green-500'}`} />
             </div>
             <div className="flex-1">
               <h4 className={`font-medium text-base ${isDark ? 'text-green-300' : 'text-green-700'}`}>Success!</h4>
               <p className={`text-sm ${isDark ? 'text-green-400' : 'text-green-600'}`}>{success}</p>
+              <div className="mt-3 flex items-center gap-3">
+                <Link
+                  to="/my-listings"
+                  className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg ${isDark ? 'bg-green-800 text-green-100 hover:bg-green-700' : 'bg-green-600 text-white hover:bg-green-700'} ${styles.transition}`}
+                >
+                  Go to Job Listings
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const base = buildInitialJobForm();
+                    setJobForm({
+                      ...base,
+                      company: companyProfile?.name || base.company,
+                      logo: companyProfile?.logo || base.logo,
+                    });
+                    setCurrentStep(1);
+                    setShowSuccess(false);
+                    setSuccess('');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg ${isDark ? 'bg-gray-800 text-gray-200 hover:bg-gray-700' : 'bg-white text-gray-800 border border-gray-300 hover:bg-gray-50'} ${styles.transition}`}
+                >
+                  Add Another Job
+                </button>
+              </div>
             </div>
             <button 
               onClick={() => setSuccess('')} 

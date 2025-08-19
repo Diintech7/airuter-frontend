@@ -21,6 +21,7 @@ const JobListings = () => {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const { colors, styles, cx } = useThemeStyles();
+  const [appliedByJobId, setAppliedByJobId] = useState({});
 
   // Enhanced job type color mapping with improved contrast
   const getJobTypeColor = (jobType) => {
@@ -94,6 +95,30 @@ const JobListings = () => {
 
   useEffect(() => {
     fetchJobs();
+  }, []);
+
+  // Fetch applied jobs to mark listings
+  useEffect(() => {
+    const fetchApplied = async () => {
+      try {
+        const token = Cookies.get('candidatetoken') || Cookies.get('usertoken');
+        if (!token) return;
+        const res = await fetch('https://airuter-backend.onrender.com/api/jobs-applied/my-applications', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        const map = {};
+        (data.applications || []).forEach(app => {
+          const jobId = app.jobId || app.job?._id || app.job?.id || (typeof app.job === 'string' ? app.job : null);
+          if (jobId) map[jobId] = app.createdAt;
+        });
+        setAppliedByJobId(map);
+      } catch (e) {
+        // ignore
+      }
+    };
+    fetchApplied();
   }, []);
 
   const handleJobClick = (jobId) => {
@@ -417,6 +442,11 @@ const JobListings = () => {
                             {getTimeSincePosting(job.createdAt)}
                           </span>
                         </div>
+                        {appliedByJobId[job._id] && (
+                          <div className={`mt-1 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${isDark ? 'bg-green-900 text-green-200' : 'bg-green-100 text-green-700'}`}>
+                            Applied on {new Date(appliedByJobId[job._id]).toLocaleDateString()}
+                          </div>
+                        )}
                         {renderPremiumIndicator(job)}
                       </div>
                     </div>
@@ -437,6 +467,11 @@ const JobListings = () => {
                         <span className={`inline-block px-3 py-1 text-xs font-medium rounded-md ${getJobTypeColor(job.type)}`}>
                           {job.type}
                         </span>
+                        {appliedByJobId[job._id] && (
+                          <span className={`inline-block px-2 py-1 text-[11px] font-medium rounded-md ${isDark ? 'bg-green-900 text-green-200' : 'bg-green-50 text-green-700'} border ${isDark ? 'border-green-800' : 'border-green-200'}`}>
+                            Already applied
+                          </span>
+                        )}
                       </div>
                     </div>
 
@@ -516,6 +551,11 @@ const JobListings = () => {
                         <div className="text-xs text-gray-500 mt-1">
                           {getTimeSincePosting(job.createdAt)}
                         </div>
+                        {appliedByJobId[job._id] && (
+                          <div className={`mt-1 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${isDark ? 'bg-green-900 text-green-200' : 'bg-green-100 text-green-700'}`}>
+                            Applied on {new Date(appliedByJobId[job._id]).toLocaleDateString()}
+                          </div>
+                        )}
                       </td>
                       <td className={`px-6 py-4 ${job.visibility === 'private' ? 'pl-8' : ''}`}>
                         <div className="flex items-center">

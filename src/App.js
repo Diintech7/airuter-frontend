@@ -4,6 +4,8 @@ import { ThemeProvider } from './context/ThemeContext';
 import AdminApp from './AdminApp';
 import UserApp from './UserApp';
 import Cookies from 'js-cookie';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const App = () => {
   useEffect(() => {
     const token = Cookies.get('usertoken');
@@ -14,6 +16,7 @@ const App = () => {
   });
   return (
     <ThemeProvider>
+      <ToastContainer position="top-right" autoClose={3000} newestOnTop closeOnClick pauseOnFocusLoss draggable pauseOnHover />
       <Router>
         <Routes>
         <Route path="/*" element={<UserApp />} />

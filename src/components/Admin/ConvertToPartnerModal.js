@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 import { X, Building, MapPin, FileText, Phone, Mail, Globe, Calendar, BookOpen, Plus, Minus } from 'lucide-react';
 
 const ConvertToPartnerModal = ({ recruiters, onClose, onSubmit, selectedRecruiter }) => {
@@ -124,7 +125,7 @@ const ConvertToPartnerModal = ({ recruiters, onClose, onSubmit, selectedRecruite
       missingFields.push('categoryDescription');
     }
     if (missingFields.length > 0) {
-      alert(`Please fill in the following required fields: ${missingFields.join(', ')}`);
+      toast.error(`Please fill in the following required fields: ${missingFields.join(', ')}`);
       return;
     }
     onSubmit({

@@ -20,12 +20,41 @@ const InterviewWebSockets = {
       const data = JSON.parse(event.data)
       if (data.type === "transcript" && data.data.trim()) {
         console.log("[Deepgram] Received transcript:", data.data)
+        
+        // Filter out very short or repetitive transcripts
+        const transcript = data.data.trim()
+        if (transcript.length < 3) {
+          console.log("[Deepgram] Skipping very short transcript:", transcript)
+          return
+        }
+        
         setUserResponse(prev => {
-          const merged = mergeTranscript(prev, data.data)
+          // Check if the new transcript is too similar to the previous one
+          if (prev && prev.length > 0) {
+            const prevLower = prev.toLowerCase()
+            const nextLower = transcript.toLowerCase()
+            
+            // If the new transcript is mostly contained in the previous, skip it
+            if (prevLower.includes(nextLower) && nextLower.length > 5) {
+              console.log("[Deepgram] New transcript is contained in previous, skipping:", transcript)
+              return prev
+            }
+            
+            // If they're very similar (more than 80% similarity), skip
+            const similarity = calculateSimilarity(prevLower, nextLower)
+            if (similarity > 0.8) {
+              console.log(`[Deepgram] Transcripts too similar (${similarity.toFixed(2)}), skipping:`, transcript)
+              return prev
+            }
+          }
+          
+          const merged = mergeTranscript(prev, transcript)
           if (prev !== merged) {
             console.log("[Deepgram] Previous:", prev)
-            console.log("[Deepgram] New:", data.data)
+            console.log("[Deepgram] New:", transcript)
             console.log("[Deepgram] Merged:", merged)
+          } else {
+            console.log("[Deepgram] No change in transcript, skipping update")
           }
           return merged
         })
@@ -199,23 +228,82 @@ function getSarvamSynthesisOptions(language, voice) {
 // Helper function to merge transcript data without repeating words or sentences
 function mergeTranscript(prev, next) {
   if (!prev) return next
-  // Deduplicate at sentence level
-  const prevSentences = prev.split(/(?<=[.!?])\s+/)
-  const nextSentences = next.split(/(?<=[.!?])\s+/)
-  const newSentences = nextSentences.filter(s => !prevSentences.includes(s))
-  let merged = (prev + (newSentences.length ? ' ' + newSentences.join(' ') : '')).trim()
-  // Further deduplicate at word level (remove repeated trailing words)
-  const prevWords = prev.split(/\s+/)
-  const nextWords = next.split(/\s+/)
-  let overlap = 0
-  for (let i = 1; i <= Math.min(prevWords.length, nextWords.length); i++) {
-    if (prevWords.slice(-i).join(' ') === nextWords.slice(0, i).join(' ')) {
-      overlap = i
+  if (!next) return prev
+  
+  // Clean up the transcripts
+  const cleanPrev = prev.trim()
+  const cleanNext = next.trim()
+  
+  // If they're identical, return one
+  if (cleanPrev === cleanNext) return cleanPrev
+  
+  // Split into words for better analysis
+  const prevWords = cleanPrev.split(/\s+/).filter(w => w.length > 0)
+  const nextWords = cleanNext.split(/\s+/).filter(w => w.length > 0)
+  
+  // If previous transcript is empty, return next
+  if (prevWords.length === 0) return cleanNext
+  
+  // Find the longest common suffix from previous that matches prefix of next
+  let maxOverlap = 0
+  const maxPossibleOverlap = Math.min(prevWords.length, nextWords.length)
+  
+  for (let i = 1; i <= maxPossibleOverlap; i++) {
+    const prevSuffix = prevWords.slice(-i).join(' ').toLowerCase()
+    const nextPrefix = nextWords.slice(0, i).join(' ').toLowerCase()
+    
+    if (prevSuffix === nextPrefix && prevSuffix.length > 0) {
+      maxOverlap = i
     }
   }
-  if (overlap > 0) {
-    merged = prev + ' ' + nextWords.slice(overlap).join(' ')
+  
+  // If we found overlap, merge by removing the overlapping part
+  if (maxOverlap > 0) {
+    const nonOverlappingNext = nextWords.slice(maxOverlap).join(' ')
+    const result = cleanPrev + (nonOverlappingNext ? ' ' + nonOverlappingNext : '')
+    console.log(`[Merge] Found ${maxOverlap} word overlap, merged: "${cleanPrev}" + "${nonOverlappingNext}" = "${result}"`)
+    return result
   }
-  return merged.trim()
+  
+  // Check if the new transcript is completely contained within the previous
+  const prevLower = cleanPrev.toLowerCase()
+  const nextLower = cleanNext.toLowerCase()
+  
+  if (prevLower.includes(nextLower)) {
+    console.log(`[Merge] New transcript "${cleanNext}" is already contained in previous, skipping`)
+    return cleanPrev
+  }
+  
+  // Check if the new transcript contains significant parts of the previous
+  const prevWordSet = new Set(prevWords.map(w => w.toLowerCase()))
+  const nextWordSet = new Set(nextWords.map(w => w.toLowerCase()))
+  const commonWords = [...prevWordSet].filter(word => nextWordSet.has(word))
+  
+  // If there are too many common words, the new transcript might be redundant
+  if (commonWords.length > Math.min(prevWords.length, nextWords.length) * 0.7) {
+    console.log(`[Merge] Too many common words (${commonWords.length}), new transcript might be redundant`)
+    return cleanPrev
+  }
+  
+  // No significant overlap, append the new transcript
+  const result = cleanPrev + ' ' + cleanNext
+  console.log(`[Merge] No significant overlap, appending: "${cleanPrev}" + "${cleanNext}" = "${result}"`)
+  return result
 }
+
+// Helper function to calculate similarity between two strings
+function calculateSimilarity(str1, str2) {
+  const words1 = str1.split(/\s+/).filter(w => w.length > 0);
+  const words2 = str2.split(/\s+/).filter(w => w.length > 0);
+
+  const set1 = new Set(words1);
+  const set2 = new Set(words2);
+
+  const intersection = [...set1].filter(word => set2.has(word));
+  const union = new Set([...set1, ...set2]);
+
+  return intersection.length / union.size;
+}
+
 export default InterviewWebSockets
+

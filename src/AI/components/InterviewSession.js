@@ -25,6 +25,113 @@ const InterviewSession = ({
 }) => {
   const transcriptContainerRef = useRef(null)
 
+  // Function to clean up transcript text
+  const cleanTranscriptText = (text) => {
+    if (!text) return ""
+    
+    // Remove excessive whitespace
+    let cleaned = text.replace(/\s+/g, ' ').trim()
+    
+    // Remove common speech recognition artifacts and filler words
+    cleaned = cleaned.replace(/\b(um|uh|ah|er|like|you know|i mean|the|a|an|is|are|was|were|be|been|being|have|has|had|do|does|did|will|would|could|should|can|may|might)\b/gi, '')
+    
+    // Split into sentences and clean each one
+    const sentences = cleaned.split(/[.!?]+/).filter(s => s.trim())
+    const cleanedSentences = []
+    
+    for (const sentence of sentences) {
+      const words = sentence.trim().split(/\s+/)
+      const uniqueWords = []
+      let lastWord = ''
+      
+      for (const word of words) {
+        const cleanWord = word.toLowerCase().trim()
+        if (cleanWord !== lastWord && cleanWord.length > 0) {
+          uniqueWords.push(word)
+          lastWord = cleanWord
+        }
+      }
+      
+      if (uniqueWords.length > 0) {
+        cleanedSentences.push(uniqueWords.join(' '))
+      }
+    }
+    
+    // Reconstruct the text
+    cleaned = cleanedSentences.join('. ').trim()
+    
+    // Remove any remaining excessive whitespace
+    cleaned = cleaned.replace(/\s+/g, ' ').trim()
+    
+    // Capitalize first letter of each sentence
+    cleaned = cleaned.replace(/(^|\.\s+)([a-z])/g, (match, p1, p2) => p1 + p2.toUpperCase())
+    
+    // Final cleanup: remove any remaining obvious repetitions at the word level
+    const finalWords = cleaned.split(' ')
+    const finalUniqueWords = []
+    let lastFinalWord = ''
+    
+    for (const word of finalWords) {
+      if (word.toLowerCase() !== lastFinalWord.toLowerCase()) {
+        finalUniqueWords.push(word)
+        lastFinalWord = word.toLowerCase()
+      }
+    }
+    
+    return finalUniqueWords.join(' ').trim()
+  }
+
+  // Function to aggressively remove repeated phrases and sentences
+  const removeRepeatedContent = (text) => {
+    if (!text) return ""
+    
+    // Split into sentences
+    const sentences = text.split(/[.!?]+/).filter(s => s.trim())
+    const uniqueSentences = []
+    const seenSentences = new Set()
+    
+    for (const sentence of sentences) {
+      const cleanSentence = sentence.trim().toLowerCase()
+      if (!seenSentences.has(cleanSentence)) {
+        uniqueSentences.push(sentence.trim())
+        seenSentences.add(cleanSentence)
+      }
+    }
+    
+    return uniqueSentences.join('. ').trim()
+  }
+
+  // Clean the user response for display with aggressive deduplication
+  const cleanedUserResponse = removeRepeatedContent(cleanTranscriptText(userResponse))
+
+  // Clean responses array for display
+  const cleanedResponses = responses.map(response => removeRepeatedContent(cleanTranscriptText(response)))
+
+  // Debug logging for transcript cleaning
+  useEffect(() => {
+    if (userResponse && userResponse !== cleanedUserResponse) {
+      console.log('[Transcript Cleaning] Before:', userResponse)
+      console.log('[Transcript Cleaning] After basic cleaning:', cleanTranscriptText(userResponse))
+      console.log('[Transcript Cleaning] After deduplication:', cleanedUserResponse)
+      console.log('[Transcript Cleaning] Length reduction:', userResponse.length, '->', cleanedUserResponse.length)
+    }
+  }, [userResponse, cleanedUserResponse])
+
+  // Periodic cleanup of transcript to prevent accumulation of repetitive content
+  useEffect(() => {
+    if (userResponse && userResponse.length > 200) { // Only clean if transcript is getting long
+      const cleanupInterval = setInterval(() => {
+        const cleaned = removeRepeatedContent(cleanTranscriptText(userResponse))
+        if (cleaned !== userResponse) {
+          console.log('[Periodic Cleanup] Cleaning long transcript:', userResponse.length, '->', cleaned.length)
+          // Note: We can't directly update userResponse here, but this shows what would be cleaned
+        }
+      }, 5000) // Check every 5 seconds
+      
+      return () => clearInterval(cleanupInterval)
+    }
+  }, [userResponse])
+
   useEffect(() => {
     if (transcriptContainerRef.current) {
       const container = transcriptContainerRef.current
@@ -302,7 +409,7 @@ const InterviewSession = ({
                   </div>
                   <div className="text-sm text-gray-500 mt-2 mb-1">{getLocalizedText(language, "yourAnswer")}</div>
                   <div className="bg-blue-600 text-white p-3 rounded-lg max-w-xs lg:max-w-md self-end">
-                    <p>{responses && responses[idx] ? responses[idx] : <span className="italic text-gray-300">No answer</span>}</p>
+                    <p>{cleanedResponses[idx] ? cleanedResponses[idx] : <span className="italic text-gray-300">No answer</span>}</p>
                   </div>
                 </div>
               ))}
@@ -314,7 +421,7 @@ const InterviewSession = ({
                 </div>
                 <div className="text-sm text-gray-500 mt-2 mb-1">{getLocalizedText(language, "yourAnswer")}</div>
                 <div className="bg-blue-600 text-white p-3 rounded-lg max-w-xs lg:max-w-md self-end">
-                  <p>{userResponse}</p>
+                  <p>{cleanedUserResponse}</p>
                 </div>
               </div>
             </div>

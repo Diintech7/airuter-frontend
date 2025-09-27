@@ -33,7 +33,7 @@ const AdminApprovals = () => {
     try {
       setLoading(true);
       const token = Cookies.get('admintoken');
-      const response = await axios.get('https://airuter-backend.onrender.com/api/admin/pending', {
+      const response = await axios.get('https://test.airuter.com/api/admin/pending', {
         headers: { Authorization: `Bearer ${token}` },
         withCredentials: true // Important for cookies
       });
@@ -58,7 +58,7 @@ const AdminApprovals = () => {
         ...(status === 'rejected' && { rejectionReason })
       };
 
-      await axios.patch(`https://airuter-backend.onrender.com/api/admin/approve/${adminId}`, data, {
+      await axios.patch(`https://test.airuter.com/api/admin/approve/${adminId}`, data, {
         headers: { Authorization: `Bearer ${token}` },
         withCredentials: true // Important for cookies
       });

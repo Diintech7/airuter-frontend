@@ -53,7 +53,7 @@ const PartnerCandidateAccess = () => {
       if (statusFilter) queryParams.append('status', statusFilter);
       if (activeFilter !== 'all') queryParams.append('active', activeFilter === 'active');
 
-      const response = await fetch(`https://airuter-backend.onrender.com/api/candidates?${queryParams}`, {
+      const response = await fetch(`https://test.airuter.com/api/candidates?${queryParams}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       
@@ -76,8 +76,8 @@ const PartnerCandidateAccess = () => {
     try {
       const token = Cookies.get('usertoken');
       const url = editingCandidate 
-        ? `https://airuter-backend.onrender.com/api/candidates/${editingCandidate._id}` 
-        : 'https://airuter-backend.onrender.com/api/candidates';
+        ? `https://test.airuter.com/api/candidates/${editingCandidate._id}` 
+        : 'https://test.airuter.com/api/candidates';
       
       const response = await fetch(url, {
         method: editingCandidate ? 'PUT' : 'POST',
@@ -145,7 +145,7 @@ const PartnerCandidateAccess = () => {
     
     try {
       const token = Cookies.get('usertoken');
-      const response = await fetch(`https://airuter-backend.onrender.com/api/candidates/${id}`, {
+      const response = await fetch(`https://test.airuter.com/api/candidates/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -169,7 +169,7 @@ const PartnerCandidateAccess = () => {
     try {
       const token = Cookies.get('usertoken');
       const response = await fetch(
-        `https://airuter-backend.onrender.com/api/candidates/${candidateId}/toggle-status`,
+        `https://test.airuter.com/api/candidates/${candidateId}/toggle-status`,
         {
           method: 'PUT',
           headers: { 
@@ -199,7 +199,7 @@ const PartnerCandidateAccess = () => {
     try {
       const token = Cookies.get('usertoken');
       const response = await fetch(
-        `https://airuter-backend.onrender.com/api/candidates/${candidateId}/resend-credentials`,
+        `https://test.airuter.com/api/candidates/${candidateId}/resend-credentials`,
         {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${token}` }

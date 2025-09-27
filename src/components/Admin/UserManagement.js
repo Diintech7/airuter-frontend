@@ -38,7 +38,7 @@ const UserManagement = () => {
         navigate("/admin/login")
         return
       }
-      const response = await axios.get("https://airuter-backend.onrender.com/api/admin/users?role=jobSeeker", {
+      const response = await axios.get("https://test.airuter.com/api/admin/users?role=jobSeeker", {
         headers: { Authorization: `Bearer ${token}` },
       })
       if (!response.data.success) {
@@ -47,7 +47,7 @@ const UserManagement = () => {
       const usersWithJobData = await Promise.all(
         response.data.users.map(async (user) => {
           try {
-            const jobResponse = await axios.get(`https://airuter-backend.onrender.com/api/admin/users/${user._id}/applications`, {
+            const jobResponse = await axios.get(`https://test.airuter.com/api/admin/users/${user._id}/applications`, {
               headers: { Authorization: `Bearer ${token}` },
             })
             return {
@@ -97,7 +97,7 @@ const UserManagement = () => {
       console.log("Attempting to impersonate user:", userId)
 
       const response = await axios.post(
-        `https://airuter-backend.onrender.com/api/admin/users/${userId}/impersonate`,
+        `https://test.airuter.com/api/admin/users/${userId}/impersonate`,
         {},
         { headers: { Authorization: `Bearer ${adminToken}` } },
       )
@@ -224,7 +224,7 @@ const UserManagement = () => {
       const isActive = currentStatus === "Active" ? false : true
       const token = Cookies.get("admintoken")
       const response = await axios.patch(
-        `https://airuter-backend.onrender.com/api/admin/users/${userId}/status`,
+        `https://test.airuter.com/api/admin/users/${userId}/status`,
         { isActive },
         { headers: { Authorization: `Bearer ${token}` } },
       )
@@ -249,7 +249,7 @@ const UserManagement = () => {
     try {
       const token = Cookies.get("admintoken")
 
-      const response = await axios.get(`https://airuter-backend.onrender.com/api/admin/users/${userId}/resume`, {
+      const response = await axios.get(`https://test.airuter.com/api/admin/users/${userId}/resume`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       if (!response.data.success) {
@@ -258,7 +258,7 @@ const UserManagement = () => {
       const profile = response.data.profile
       if (profile && profile.resumePath) {
         if (profile.resumePath.startsWith("/uploads/")) {
-          window.open(`https://airuter-backend.onrender.com${profile.resumePath}`, "_blank")
+          window.open(`https://test.airuter.com${profile.resumePath}`, "_blank")
         } else if (profile.resumePath.startsWith("http")) {
           window.open(profile.resumePath, "_blank")
         } else {

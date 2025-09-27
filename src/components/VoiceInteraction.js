@@ -64,7 +64,7 @@ const VoiceInteraction = () => {
         return;
       }
 
-      const response = await fetch('https://airuter-backend.onrender.com/api/chat/voice-history', {
+      const response = await fetch('https://test.airuter.com/api/chat/voice-history', {
         headers: {
           'Authorization': `Bearer ${token}`
         },
@@ -177,7 +177,7 @@ const VoiceInteraction = () => {
         return;
       }
 
-      const chatResponse = await fetch('https://airuter-backend.onrender.com/api/chat/voice-message', {
+      const chatResponse = await fetch('https://test.airuter.com/api/chat/voice-message', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

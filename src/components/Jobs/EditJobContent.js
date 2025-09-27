@@ -40,7 +40,7 @@ const EditJobContent = () => {
       try {
         setLoading(true);
         const token = Cookies.get('usertoken');
-        const response = await fetch(`https://airuter-backend.onrender.com/api/jobs/${jobId}`, {
+        const response = await fetch(`https://test.airuter.com/api/jobs/${jobId}`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`
@@ -119,7 +119,7 @@ const EditJobContent = () => {
       };
       
       const token = Cookies.get('usertoken');
-      const response = await fetch(`https://airuter-backend.onrender.com/api/jobs/${jobId}`, {
+      const response = await fetch(`https://test.airuter.com/api/jobs/${jobId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

@@ -107,7 +107,7 @@ const InterviewRoom = () => {
     const fetchInterviewDetails = async () => {
       try {
         console.log("Fetching interview details...")
-        const response = await axios.get(`https://airuter-backend.onrender.com/api/interview/details/${roomId}`)
+        const response = await axios.get(`https://test.airuter.com/api/interview/details/${roomId}`)
         const { date, time, jobTitle, document } = response.data
         const interviewDateTime = new Date(`${date}T${time}`)
         setInterviewTime(interviewDateTime)
@@ -253,7 +253,7 @@ const InterviewRoom = () => {
         }))
         .filter((qa) => qa.question && qa.answer)
       const response = await Promise.race([
-        axios.post(`https://airuter-backend.onrender.com/api/interview/generate-adaptive-question`, {
+        axios.post(`https://test.airuter.com/api/interview/generate-adaptive-question`, {
           roomId,
           previousQA,
           document: interviewDocument,
@@ -519,7 +519,7 @@ const InterviewRoom = () => {
     try {
       console.log("Submitting all responses...")
       const submitPromises = questions.map((question, index) => {
-        return axios.post(`https://airuter-backend.onrender.com/api/interview/response/${roomId}`, {
+        return axios.post(`https://test.airuter.com/api/interview/response/${roomId}`, {
           question,
           response: finalResponses[index],
         })
@@ -540,7 +540,7 @@ const InterviewRoom = () => {
   const analyzeResponses = async (finalResponses) => {
     try {
       console.log("Analyzing responses...")
-      const response = await axios.post("https://airuter-backend.onrender.com/api/interview/analyze", {
+      const response = await axios.post("https://test.airuter.com/api/interview/analyze", {
         roomId,
         questions,
         answers: finalResponses,

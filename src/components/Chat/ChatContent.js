@@ -88,7 +88,7 @@ const ChatContent = () => {
         return;
       }
 
-      const response = await fetch('https://airuter-backend.onrender.com/api/chat/history', {
+      const response = await fetch('https://test.airuter.com/api/chat/history', {
         headers: {
           'Authorization': `Bearer ${token}`
         },
@@ -187,7 +187,7 @@ const ChatContent = () => {
 
     try {
       const token = Cookies.get('usertoken');
-      const response = await fetch('https://airuter-backend.onrender.com/api/chat/message', {
+      const response = await fetch('https://test.airuter.com/api/chat/message', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -358,7 +358,7 @@ const ChatContent = () => {
         return;
       }
 
-      const response = await fetch('https://airuter-backend.onrender.com/api/chat/message', {
+      const response = await fetch('https://test.airuter.com/api/chat/message', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

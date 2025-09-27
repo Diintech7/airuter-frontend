@@ -39,7 +39,7 @@ const PartnerDetailsPage = () => {
     try {
       const token = Cookies.get('admintoken');
       const response = await axios.get(
-        `https://airuter-backend.onrender.com/api/partner/partners/${partnerId}`,
+        `https://test.airuter.com/api/partner/partners/${partnerId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setPartner(response.data.partner);
@@ -55,7 +55,7 @@ const PartnerDetailsPage = () => {
     try {
       const token = Cookies.get('admintoken');
       const response = await axios.get(
-        `https://airuter-backend.onrender.com/api/partner/job-access/${partnerId}/stats`,
+        `https://test.airuter.com/api/partner/job-access/${partnerId}/stats`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setStats(response.data.data);
@@ -68,7 +68,7 @@ const PartnerDetailsPage = () => {
     try {
       const token = Cookies.get('admintoken');
       await axios.put(
-        `https://airuter-backend.onrender.com/api/partner/partners/${partnerId}/status`,
+        `https://test.airuter.com/api/partner/partners/${partnerId}/status`,
         { status: !partner.isActive },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -83,7 +83,7 @@ const PartnerDetailsPage = () => {
     if (window.confirm('Are you sure you want to delete this partner?')) {
       try {
         const token = Cookies.get('admintoken');
-        await axios.delete(`https://airuter-backend.onrender.com/api/partner/partners/${partnerId}`, {
+        await axios.delete(`https://test.airuter.com/api/partner/partners/${partnerId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         toast.success('Partner deleted successfully');

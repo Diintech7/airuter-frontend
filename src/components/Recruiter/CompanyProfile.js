@@ -40,7 +40,7 @@ const CompanyProfile = () => {
   const fetchCompanyProfile = async () => {
     try {
       setLoading(true);
-      const response = await fetch('https://airuter-backend.onrender.com/api/company/profile', {
+      const response = await fetch('https://test.airuter.com/api/company/profile', {
         headers: {
           'Authorization': `Bearer ${Cookies.get('usertoken')}`
         }
@@ -105,7 +105,7 @@ const CompanyProfile = () => {
   const handleSubmit = async () => {
     try {
       setLoading(true);
-      const response = await fetch('https://airuter-backend.onrender.com/api/company/profile', {
+      const response = await fetch('https://test.airuter.com/api/company/profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

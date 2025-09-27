@@ -66,7 +66,7 @@ const JobDetail = () => {
     const fetchJobDetail = async () => {
       try {
         const token = getAuthToken()
-        const response = await fetch(`https://airuter-backend.onrender.com/api/jobs/${jobId}`, {
+        const response = await fetch(`https://test.airuter.com/api/jobs/${jobId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -84,7 +84,7 @@ const JobDetail = () => {
     const fetchUserProfile = async () => {
       try {
         const token = getAuthToken()
-        const response = await fetch("https://airuter-backend.onrender.com/api/profile", {
+        const response = await fetch("https://test.airuter.com/api/profile", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -107,7 +107,7 @@ const JobDetail = () => {
       try {
         const token = getAuthToken()
         if (!token) return
-        const res = await fetch('https://airuter-backend.onrender.com/api/jobs-applied/my-applications', {
+        const res = await fetch('https://test.airuter.com/api/jobs-applied/my-applications', {
           headers: { Authorization: `Bearer ${token}` }
         })
         if (!res.ok) return
@@ -230,7 +230,7 @@ const JobDetail = () => {
         type: type,
       }
 
-      const response = await fetch(`https://airuter-backend.onrender.com/api/applications/generate-content`, {
+      const response = await fetch(`https://test.airuter.com/api/applications/generate-content`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -302,7 +302,7 @@ const JobDetail = () => {
       if (resumeTab === "upload") {
         formData.append("resume", applicationData.resume)
       } else if (resumeTab === "existing" && userProfile && userProfile.resumePath) {
-        const response = await fetch(`https://airuter-backend.onrender.com/api/profile${userProfile.resumePath}`, {
+        const response = await fetch(`https://test.airuter.com/api/profile${userProfile.resumePath}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -319,7 +319,7 @@ const JobDetail = () => {
       formData.append("additionalNotes", applicationData.additionalNotes)
 
       setSubmissionStage("processing")
-      const response = await fetch(`https://airuter-backend.onrender.com/api/applications/${jobId}`, {
+      const response = await fetch(`https://test.airuter.com/api/applications/${jobId}`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -376,7 +376,7 @@ const JobDetail = () => {
   const viewResume = () => {
     if (userProfile && userProfile.resumePath) {
       const token = getAuthToken()
-      window.open(`https://airuter-backend.onrender.com/api/profile${userProfile.resumePath}?token=${token}`, "_blank")
+      window.open(`https://test.airuter.com/api/profile${userProfile.resumePath}?token=${token}`, "_blank")
     }
   }
 

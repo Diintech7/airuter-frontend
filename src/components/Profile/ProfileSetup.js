@@ -21,7 +21,7 @@ const ProfileSetup = ({ initialData, onComplete, onBack, onSkip }) => {
     try {
       setError(null)
 
-      const response = await fetch("https://airuter-backend.onrender.com/api/profile/create", {
+      const response = await fetch("https://test.airuter.com/api/profile/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

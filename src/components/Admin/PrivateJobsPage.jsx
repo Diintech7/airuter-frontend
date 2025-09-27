@@ -28,7 +28,7 @@ const PrivateJobsPage = () => {
   const fetchPartnerInfo = async () => {
     try {
       const token = Cookies.get('admintoken');
-      const response = await fetch(`https://airuter-backend.onrender.com/api/partner/partners/${partnerId}`, {
+      const response = await fetch(`https://test.airuter.com/api/partner/partners/${partnerId}`, {
         method: 'GET',
         headers: { 
           'Authorization': `Bearer ${token}`,
@@ -54,7 +54,7 @@ const PrivateJobsPage = () => {
         throw new Error('No authentication token found');
       }
 
-      const response = await fetch('https://airuter-backend.onrender.com/api/partner/job-access/private', {
+      const response = await fetch('https://test.airuter.com/api/partner/job-access/private', {
         method: 'GET',
         headers: { 
           'Authorization': `Bearer ${token}`,
@@ -88,7 +88,7 @@ const PrivateJobsPage = () => {
         throw new Error('No authentication token found');
       }
 
-      const response = await fetch(`https://airuter-backend.onrender.com/api/partner/job-access/${partnerId}/assigned-jobs`, {
+      const response = await fetch(`https://test.airuter.com/api/partner/job-access/${partnerId}/assigned-jobs`, {
         method: 'GET',
         headers: { 
           'Authorization': `Bearer ${token}`,
@@ -121,7 +121,7 @@ const PrivateJobsPage = () => {
         throw new Error('No authentication token found');
       }
 
-      const response = await fetch('https://airuter-backend.onrender.com/api/partner/job-access/assign-to-partner', {
+      const response = await fetch('https://test.airuter.com/api/partner/job-access/assign-to-partner', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -165,7 +165,7 @@ const PrivateJobsPage = () => {
         throw new Error('No authentication token found');
       }
 
-      const response = await fetch('https://airuter-backend.onrender.com/api/partner/job-access/revoke-partner-access', {
+      const response = await fetch('https://test.airuter.com/api/partner/job-access/revoke-partner-access', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

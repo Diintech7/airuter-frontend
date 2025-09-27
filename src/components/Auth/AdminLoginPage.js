@@ -17,7 +17,7 @@ const AdminLoginPage = ({ onAuthSuccess }) => {
     setError('');
 
     try {
-      const response = await fetch('https://airuter-backend.onrender.com/api/admin/login', {
+      const response = await fetch('https://test.airuter.com/api/admin/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

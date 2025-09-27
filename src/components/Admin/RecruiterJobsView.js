@@ -30,7 +30,7 @@ const RecruiterJobsView = () => {
       }
 
       // First get recruiter details
-      const recruiterResponse = await axios.get(`https://airuter-backend.onrender.com/api/admin/recruiters/${recruiterId}`, {
+      const recruiterResponse = await axios.get(`https://test.airuter.com/api/admin/recruiters/${recruiterId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -39,7 +39,7 @@ const RecruiterJobsView = () => {
       }
 
       // Then get jobs posted by this recruiter
-      const jobsResponse = await axios.get(`https://airuter-backend.onrender.com/api/admin/recruiters/${recruiterId}/jobs`, {
+      const jobsResponse = await axios.get(`https://test.airuter.com/api/admin/recruiters/${recruiterId}/jobs`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -71,7 +71,7 @@ const RecruiterJobsView = () => {
           return;
         }
         
-        const response = await axios.delete(`https://airuter-backend.onrender.com/api/admin/jobs/${jobId}`, {
+        const response = await axios.delete(`https://test.airuter.com/api/admin/jobs/${jobId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         

@@ -22,17 +22,17 @@ const ChatBox = () => {
       let response;
       if (!interviewStarted) {
         // Start the interview
-        response = await axios.post('https://airuter-backend.onrender.com/startInterview', { userId });
+        response = await axios.post('https://test.airuter.com/startInterview', { userId });
         setInterviewStarted(true);
         setConversation([...conversation, userMessage, { sender: 'ai', text: response.data.message }]);
       } else if (!interviewDomain) {
         // Handle domain selection
-        response = await axios.post('https://airuter-backend.onrender.com/selectDomain', { userId, domain: message });
+        response = await axios.post('https://test.airuter.com/selectDomain', { userId, domain: message });
         setInterviewDomain(message);
         setConversation([...conversation, userMessage, { sender: 'ai', text: response.data.message }]);
       } else {
         // Ask question
-        response = await axios.post('https://airuter-backend.onrender.com/askQuestion', { userId, question: message });
+        response = await axios.post('https://test.airuter.com/askQuestion', { userId, question: message });
         setConversation([...conversation, userMessage, { sender: 'ai', text: response.data.answer }]);
       }
     } catch (error) {

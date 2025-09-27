@@ -126,7 +126,7 @@ const InterviewRoom = ({ roomDetails, language, difficulty, onEnd }) => {
   const generateQuestions = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('https://airuter-backend.onrender.com/api/interview/generate-questions', {
+      const response = await fetch('https://test.airuter.com/api/interview/generate-questions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -165,7 +165,7 @@ const InterviewRoom = ({ roomDetails, language, difficulty, onEnd }) => {
   const analyzeAnswers = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('https://airuter-backend.onrender.com/api/interview/analyze-answers', {
+      const response = await fetch('https://test.airuter.com/api/interview/analyze-answers', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

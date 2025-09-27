@@ -82,7 +82,7 @@ const RecruiterManagement = () => {
         return
       }
 
-      const response = await axios.get("https://airuter-backend.onrender.com/api/admin/recruiters", {
+      const response = await axios.get("https://test.airuter.com/api/admin/recruiters", {
         headers: { Authorization: `Bearer ${token}` },
       })
 
@@ -135,7 +135,7 @@ const RecruiterManagement = () => {
       console.log("Attempting to login as recruiter:", recruiterId)
 
       const response = await axios.post(
-        "https://airuter-backend.onrender.com/api/admin/recruiters/login-as-recruiter",
+        "https://test.airuter.com/api/admin/recruiters/login-as-recruiter",
         { recruiterId },
         { headers: { Authorization: `Bearer ${adminToken}` } },
       )
@@ -199,12 +199,12 @@ const RecruiterManagement = () => {
       let response
 
       if (editMode) {
-        response = await axios.put(`https://airuter-backend.onrender.com/api/admin/recruiters/${currentRecruiter._id}`, formData, {
+        response = await axios.put(`https://test.airuter.com/api/admin/recruiters/${currentRecruiter._id}`, formData, {
           headers: { Authorization: `Bearer ${token}` },
         })
         toast.success("Recruiter updated successfully")
       } else {
-        response = await axios.post("https://airuter-backend.onrender.com/api/admin/recruiters", formData, {
+        response = await axios.post("https://test.airuter.com/api/admin/recruiters", formData, {
           headers: { Authorization: `Bearer ${token}` },
         })
         toast.success("Recruiter added successfully")
@@ -237,7 +237,7 @@ const RecruiterManagement = () => {
           return
         }
 
-        const response = await axios.delete(`https://airuter-backend.onrender.com/api/admin/recruiters/${id}`, {
+        const response = await axios.delete(`https://test.airuter.com/api/admin/recruiters/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         })
 

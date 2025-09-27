@@ -264,7 +264,7 @@ startScreenRecording: async (
         const uploadUrl = await InterviewMediaControls.uploadToCloudinary(videoBlob, roomId);
         console.log('Upload successful, URL:', uploadUrl);
         
-        await axios.post('https://airuter-backend.onrender.com/api/interview/save-recording', {
+        await axios.post('https://test.airuter.com/api/interview/save-recording', {
           roomId,
           videoUrl: uploadUrl
         });

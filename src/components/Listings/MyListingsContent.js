@@ -358,7 +358,7 @@ const MyListingsContent = () => {
     try {
       setLoading(true)
       const token = Cookies.get("usertoken")
-      const response = await fetch("https://airuter-backend.onrender.com/api/jobs/my-jobs", {
+      const response = await fetch("https://test.airuter.com/api/jobs/my-jobs", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -395,7 +395,7 @@ const MyListingsContent = () => {
 
     try {
       const token = Cookies.get("usertoken")
-      const response = await fetch(`https://airuter-backend.onrender.com/api/jobs/${deleteJobId}`, {
+      const response = await fetch(`https://test.airuter.com/api/jobs/${deleteJobId}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -430,7 +430,7 @@ const MyListingsContent = () => {
   const handleToggleVisibility = async (jobId, newStatus) => {
     try {
       const token = Cookies.get("usertoken")
-      const response = await fetch(`https://airuter-backend.onrender.com/api/jobs/${jobId}`, {
+      const response = await fetch(`https://test.airuter.com/api/jobs/${jobId}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

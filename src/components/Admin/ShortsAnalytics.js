@@ -36,7 +36,7 @@ const ShortsAnalytics = () => {
           'Authorization': `Bearer ${token}`
         };
         
-        const res = await axios.get('https://airuter-backend.onrender.com/api/shorts', {
+        const res = await axios.get('https://test.airuter.com/api/shorts', {
           headers,
           credentials: 'include'
         });
@@ -84,7 +84,7 @@ const ShortsAnalytics = () => {
           'Authorization': `Bearer ${token}`
         };
         
-        const res = await axios.get('https://airuter-backend.onrender.com/api/shorts', {
+        const res = await axios.get('https://test.airuter.com/api/shorts', {
           headers,
           credentials: 'include'
         });

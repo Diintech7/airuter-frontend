@@ -69,7 +69,7 @@ const SidebarLayout = ({ onLogout, userRole, userPermissions = [] }) => {
 
   const fetchAdminData = async () => {
     try {
-      const response = await fetch("https://airuter-backend.onrender.com/api/admin/profile", {
+      const response = await fetch("https://test.airuter.com/api/admin/profile", {
         headers: {
           Authorization: `Bearer ${Cookies.get("admintoken") || Cookies.get("usertoken")}`,
         },
@@ -93,7 +93,7 @@ const SidebarLayout = ({ onLogout, userRole, userPermissions = [] }) => {
 
   const fetchCandidateData = async () => {
     try {
-      const response = await fetch("https://airuter-backend.onrender.com/api/candidate/validate", {
+      const response = await fetch("https://test.airuter.com/api/candidate/validate", {
         headers: {
           Authorization: `Bearer ${Cookies.get("candidatetoken")}`,
         },
@@ -118,7 +118,7 @@ const SidebarLayout = ({ onLogout, userRole, userPermissions = [] }) => {
 
   const fetchRecruiterProfile = async () => {
     try {
-      const response = await fetch("https://airuter-backend.onrender.com/api/company/profile", {
+      const response = await fetch("https://test.airuter.com/api/company/profile", {
         headers: {
           Authorization: `Bearer ${Cookies.get("usertoken")}`,
         },
@@ -139,7 +139,7 @@ const SidebarLayout = ({ onLogout, userRole, userPermissions = [] }) => {
 
   const fetchPartnerProfile = async () => {
     try {
-      const response = await fetch("https://airuter-backend.onrender.com/api/partner/profile", {
+      const response = await fetch("https://test.airuter.com/api/partner/profile", {
         headers: {
           Authorization: `Bearer ${Cookies.get("usertoken")}`,
         },
@@ -160,7 +160,7 @@ const SidebarLayout = ({ onLogout, userRole, userPermissions = [] }) => {
 
   const fetchUserData = async () => {
     try {
-      const response = await fetch("https://airuter-backend.onrender.com/api/profile/profile-name", {
+      const response = await fetch("https://test.airuter.com/api/profile/profile-name", {
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
@@ -188,7 +188,7 @@ const SidebarLayout = ({ onLogout, userRole, userPermissions = [] }) => {
 
   const checkProfileStatus = async () => {
     try {
-      const response = await fetch("https://airuter-backend.onrender.com/api/profile/status", {
+      const response = await fetch("https://test.airuter.com/api/profile/status", {
         headers: {
           Authorization: `Bearer ${Cookies.get("usertoken")}`,
         },

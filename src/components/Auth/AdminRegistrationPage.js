@@ -35,7 +35,7 @@ const AdminRegistrationPage = () => {
     }
 
     try {
-      const response = await fetch('https://airuter-backend.onrender.com/api/admin/register', {
+      const response = await fetch('https://test.airuter.com/api/admin/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

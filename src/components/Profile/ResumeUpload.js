@@ -55,7 +55,7 @@ const ResumeUpload = ({ onBack, onSubmit, initialData }) => {
         setProgress((prev) => Math.min(prev + 10, 90))
       }, 200)
 
-      const response = await fetch("https://airuter-backend.onrender.com/api/profile/resume", {
+      const response = await fetch("https://test.airuter.com/api/profile/resume", {
         method: "POST",
         body: formData,
         headers: {

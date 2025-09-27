@@ -41,7 +41,7 @@ const Shorts = () => {
         'Authorization': `Bearer ${token}`
       };
       
-      const res = await axios.get('https://airuter-backend.onrender.com/api/shorts', {
+      const res = await axios.get('https://test.airuter.com/api/shorts', {
         headers,
         credentials: 'include'
       });
@@ -93,7 +93,7 @@ const Shorts = () => {
           'Authorization': `Bearer ${token}`
         };
         
-        await axios.delete(`https://airuter-backend.onrender.com/api/shorts/${id}`, {
+        await axios.delete(`https://test.airuter.com/api/shorts/${id}`, {
           headers,
           credentials: 'include'
         });
@@ -149,7 +149,7 @@ const Shorts = () => {
         'Authorization': `Bearer ${token}`
       };
       
-      const res = await axios.patch(`https://airuter-backend.onrender.com/api/shorts/${id}/metrics`, 
+      const res = await axios.patch(`https://test.airuter.com/api/shorts/${id}/metrics`, 
         {
           views: parseInt(editingMetrics.views, 10),
           likes: parseInt(editingMetrics.likes, 10),

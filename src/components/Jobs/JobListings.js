@@ -56,7 +56,7 @@ const JobListings = () => {
         console.log('Making unauthenticated request');
       }
 
-      const response = await fetch('https://airuter-backend.onrender.com/api/jobs', {
+      const response = await fetch('https://test.airuter.com/api/jobs', {
         method: 'GET',
         headers: headers
       });
@@ -103,7 +103,7 @@ const JobListings = () => {
       try {
         const token = Cookies.get('candidatetoken') || Cookies.get('usertoken');
         if (!token) return;
-        const res = await fetch('https://airuter-backend.onrender.com/api/jobs-applied/my-applications', {
+        const res = await fetch('https://test.airuter.com/api/jobs-applied/my-applications', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!res.ok) return;

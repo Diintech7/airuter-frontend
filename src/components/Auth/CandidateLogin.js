@@ -66,7 +66,7 @@ const CandidateLogin = ({ onAuthSuccess }) => {
     setError('');
 
     try {
-      const response = await fetch('https://airuter-backend.onrender.com/api/candidate/login', {
+      const response = await fetch('https://test.airuter.com/api/candidate/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -116,7 +116,7 @@ const CandidateLogin = ({ onAuthSuccess }) => {
     setError('');
 
     try {
-      const backendResponse = await fetch('https://airuter-backend.onrender.com/api/candidate/google-login', {
+      const backendResponse = await fetch('https://test.airuter.com/api/candidate/google-login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

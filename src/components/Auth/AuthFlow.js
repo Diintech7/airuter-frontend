@@ -52,7 +52,7 @@ const AuthFlow = ({ onAuthSuccess }) => {
     const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
     
     try {
-      const response = await fetch(`https://airuter-backend.onrender.com${endpoint}`, {
+      const response = await fetch(`https://test.airuter.com${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -88,7 +88,7 @@ const AuthFlow = ({ onAuthSuccess }) => {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = 'https://airuter-backend.onrender.com/api/auth/google';
+    window.location.href = 'https://test.airuter.com/api/auth/google';
   };
 
   const togglePasswordVisibility = () => {

@@ -36,7 +36,7 @@ const JobPreviewPage = () => {
     const fetchJobDetails = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`https://airuter-backend.onrender.com/api/jobs/${jobId}`);
+        const response = await fetch(`https://test.airuter.com/api/jobs/${jobId}`);
         
         if (!response.ok) throw new Error('Failed to fetch job details');
         

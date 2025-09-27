@@ -58,7 +58,7 @@ const CandidatesContent = () => {
       setError('');
       const token = Cookies.get('usertoken');
       if (!token) throw new Error('Authentication token not found');
-      const response = await fetch('https://airuter-backend.onrender.com/api/applications/company', {
+      const response = await fetch('https://test.airuter.com/api/applications/company', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!response.ok) {
@@ -81,7 +81,7 @@ const CandidatesContent = () => {
   const fetchAnalysis = async (application) => {
     try {
       const token = Cookies.get('usertoken');
-      const response = await fetch(`https://airuter-backend.onrender.com/api/applications/${application._id}/analysis`, {
+      const response = await fetch(`https://test.airuter.com/api/applications/${application._id}/analysis`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.ok) {
@@ -100,7 +100,7 @@ const CandidatesContent = () => {
     try {
       const token = Cookies.get('usertoken');
       if (application.interviewRoomId) {
-        const response = await fetch(`https://airuter-backend.onrender.com/api/interview/application/${application._id}`, {
+        const response = await fetch(`https://test.airuter.com/api/interview/application/${application._id}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         
@@ -129,7 +129,7 @@ const CandidatesContent = () => {
         ...(selectedStatus !== 'all' && { status: selectedStatus }),
         ...(selectedJobType !== 'all' && { jobType: selectedJobType })
       });
-      const response = await fetch(`https://airuter-backend.onrender.com/api/applications/search?${params}`, {
+      const response = await fetch(`https://test.airuter.com/api/applications/search?${params}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!response.ok) {
@@ -149,7 +149,7 @@ const CandidatesContent = () => {
   const handleStatusChange = async (applicationId, newStatus) => {
     try {
       const token = Cookies.get('usertoken');
-      const response = await fetch(`https://airuter-backend.onrender.com/api/applications/${applicationId}/status`, {
+      const response = await fetch(`https://test.airuter.com/api/applications/${applicationId}/status`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -250,7 +250,7 @@ const CandidatesContent = () => {
       setInterviewSubmitting(true);
       const token = Cookies.get('usertoken');
       const endpoint = selectedApplication?.interviewRoomId ? 'reschedule' : 'schedule';
-      const response = await fetch(`https://airuter-backend.onrender.com/api/interview/${endpoint}`, {
+      const response = await fetch(`https://test.airuter.com/api/interview/${endpoint}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

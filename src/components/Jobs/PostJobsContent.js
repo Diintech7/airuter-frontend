@@ -46,7 +46,7 @@ const PostJobsContent = () => {
       const token = Cookies.get('usertoken');
       if (!token) return;
 
-      const response = await fetch('https://airuter-backend.onrender.com/api/company/profile', {
+      const response = await fetch('https://test.airuter.com/api/company/profile', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -147,7 +147,7 @@ const PostJobsContent = () => {
         }
       };
 
-      const response = await fetch('https://airuter-backend.onrender.com/api/jobs', {
+      const response = await fetch('https://test.airuter.com/api/jobs', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -186,7 +186,7 @@ const PostJobsContent = () => {
       setRegenLoading(prev => ({ ...prev, [section]: true }));
       const token = Cookies.get('usertoken');
       if (!token) throw new Error('Authentication token not found. Please log in again.');
-      const response = await fetch('https://airuter-backend.onrender.com/api/jobs/generate-details', {
+      const response = await fetch('https://test.airuter.com/api/jobs/generate-details', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -232,7 +232,7 @@ const PostJobsContent = () => {
         throw new Error('Authentication token not found. Please log in again.');
       }
 
-      const response = await fetch('https://airuter-backend.onrender.com/api/jobs/generate-details', {
+      const response = await fetch('https://test.airuter.com/api/jobs/generate-details', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

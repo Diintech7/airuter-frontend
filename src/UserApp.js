@@ -79,7 +79,7 @@ const UserApp = () => {
       }
 
       // Use the universal auth check endpoint
-      const response = await fetch('https://airuter-backend.onrender.com/api/auth/check', {
+      const response = await fetch('https://test.airuter.com/api/auth/check', {
         method: 'GET',
         credentials: 'include', // Include cookies
         headers: {

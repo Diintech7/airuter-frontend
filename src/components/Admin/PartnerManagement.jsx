@@ -41,7 +41,7 @@ const PartnerManagement = () => {
     try {
       setLoading(true);
       const token = Cookies.get('admintoken');
-      const response = await axios.get('https://airuter-backend.onrender.com/api/partner/partners', {
+      const response = await axios.get('https://test.airuter.com/api/partner/partners', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setPartners(response.data.partners);
@@ -55,7 +55,7 @@ const PartnerManagement = () => {
   const fetchRecruiters = async () => {
     try {
       const token = Cookies.get('admintoken');
-      const response = await axios.get('https://airuter-backend.onrender.com/api/admin/recruiters', {
+      const response = await axios.get('https://test.airuter.com/api/admin/recruiters', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setRecruiters(response.data.recruiters);
@@ -68,7 +68,7 @@ const PartnerManagement = () => {
     try {
       const token = Cookies.get('admintoken');
       const response = await axios.get(
-        `https://airuter-backend.onrender.com/api/partner/job-access/${partnerId}/stats`,
+        `https://test.airuter.com/api/partner/job-access/${partnerId}/stats`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       
@@ -119,7 +119,7 @@ const PartnerManagement = () => {
       };
 
       const response = await axios.post(
-        `https://airuter-backend.onrender.com/api/partner/recruiters/${formData.recruiterId}/convert-to-partner`,
+        `https://test.airuter.com/api/partner/recruiters/${formData.recruiterId}/convert-to-partner`,
         payload,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -139,7 +139,7 @@ const PartnerManagement = () => {
     try {
       const token = Cookies.get('admintoken');
       await axios.put(
-        `https://airuter-backend.onrender.com/api/partner/partners/${partnerId}/status`,
+        `https://test.airuter.com/api/partner/partners/${partnerId}/status`,
         { status },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -155,7 +155,7 @@ const PartnerManagement = () => {
     if (window.confirm('Are you sure you want to delete this partner?')) {
       try {
         const token = Cookies.get('admintoken');
-        await axios.delete(`https://airuter-backend.onrender.com/api/partner/partners/${partnerId}`, {
+        await axios.delete(`https://test.airuter.com/api/partner/partners/${partnerId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         toast.success('Partner deleted successfully');

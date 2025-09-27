@@ -51,7 +51,7 @@ const InterviewResultsPage = () => {
       }
 
       // Fetch interview details using roomId
-      const interviewResponse = await fetch(`https://airuter-backend.onrender.com/api/interview/details/${roomId}`, {
+      const interviewResponse = await fetch(`https://test.airuter.com/api/interview/details/${roomId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       
@@ -90,7 +90,7 @@ const InterviewResultsPage = () => {
   const fetchAnalysis = async (roomId) => {
     try {
       const token = Cookies.get('usertoken');
-      const response = await fetch(`https://airuter-backend.onrender.com/api/interview/analysis/${roomId}`, {
+      const response = await fetch(`https://test.airuter.com/api/interview/analysis/${roomId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       
